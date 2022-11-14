@@ -3,7 +3,7 @@ This package aims to help to work with  [WS-DREAM](http://wsdream.github.io/) da
 
 All credits are reserved for Zibin Zheng, Yilei Zhang, and Michael R. Lyu. the publishers of the dataset, if you work with this dataset please refer to one of the following papers: 
 [Investigating QoS of Real-World Web Services](https://www.researchgate.net/publication/260520057_Investigating_QoS_of_Real-World_Web_Services),
-[Distributed QoS Evaluation for Real-World Web Services](Distributed QoS Evaluation for Real-World Web Services)
+[Distributed QoS Evaluation for Real-World Web Services](https://www.researchgate.net/publication/224168791_Distributed_QoS_Evaluation_for_Real-World_Web_Services)
 
 ## Technologies used: 
-python -version 3.9
+python - version 3.9
