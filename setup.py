@@ -6,5 +6,5 @@ setup(name="wsdream_utility",
         packages=["wsdream_helper"],
         author="Ayoub Mokeddem",
         author_email="ayoubmkdm3@gmail.com",
-        install_requires=["numpy>=1.18.5",
-                            "pandas >= 1.4.2"])
+        install_requires=["numpy",
+                            "pandas"])
