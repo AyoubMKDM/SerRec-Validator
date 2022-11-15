@@ -1,5 +1,5 @@
-from wsdream_utility import dataset_downloader
-from get_input_args import get_input_args
+from .wsdream_utility import dataset_downloader
+from .get_input_args import get_input_args
 
 def main():
     in_args = get_input_args()

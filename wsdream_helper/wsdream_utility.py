@@ -93,7 +93,7 @@ class dataset:
 
     def __new__(cls, dir=None, url="https://zenodo.org/record/1133476/files/wsdream_dataset1.zip?download=1"):
         if (cls.__instance is None):
-            print('Creating the dataset')
+            print('Creating the dataset object ...')
             cls.__dir = dir
             full_path = os.getcwd()
             # print(full_path)
@@ -113,24 +113,22 @@ class dataset:
                 dataset_downloader(url=url, dir=dir)
 
             # Initialize the class atributes 
-            cls.__initialize()
+            if cls.__dir is None:
+                cls.usersList = dataframe_fromtxt(file=cls.__USERS_LIST_FILE_NAME)
+                cls.servicesList = dataframe_fromtxt(file=cls.__SERVICES_LIST_FILE_NAME)
+                cls.responseTimeMatrix = np.loadtxt(cls.__RESPONSE_TIME_MATRIX_FILE_NAME)
+                cls.throughputMatrix = np.loadtxt(cls.__THROUGHPUT_MATRIX_FILE_NAME)
+            else:
+                cls.usersList = dataframe_fromtxt(file=os.path.join(cls.__dir, cls.__USERS_LIST_FILE_NAME))
+                cls.servicesList = dataframe_fromtxt(file=os.path.join(cls.__dir, cls.__SERVICES_LIST_FILE_NAME))
+                cls.responseTimeMatrix = np.loadtxt(os.path.join(cls.__dir, cls.__RESPONSE_TIME_MATRIX_FILE_NAME))
+                cls.throughputMatrix = np.loadtxt(os.path.join(cls.__dir, cls.__THROUGHPUT_MATRIX_FILE_NAME))  
+            
+                cls.servicesList['IP No.'].replace("0",value=None,inplace=True)
+            # Creating the class 
             cls.__instance = super(dataset, cls).__new__(cls)
+            print("** DONE ** \n The dataset is accessible")
         return cls.__instance 
-
-    def __initialize(cls):
-        if cls.__dir is None:
-            cls.usersList = dataframe_fromtxt(file=cls.__USERS_LIST_FILE_NAME)
-            cls.servicesList = dataframe_fromtxt(file=cls.__SERVICES_LIST_FILE_NAME)
-            cls.responseTimeMatrix = np.loadtxt(cls.__RESPONSE_TIME_MATRIX_FILE_NAME)
-            cls.throughputMatrix = np.loadtxt(cls.__THROUGHPUT_MATRIX_FILE_NAME)
-        else:
-            cls.usersList = dataframe_fromtxt(file=os.path.join(cls.__dir, cls.__USERS_LIST_FILE_NAME))
-            cls.servicesList = dataframe_fromtxt(file=os.path.join(cls.__dir, cls.__SERVICES_LIST_FILE_NAME))
-            cls.responseTimeMatrix = np.loadtxt(os.path.join(cls.__dir, cls.__RESPONSE_TIME_MATRIX_FILE_NAME))
-            cls.throughputMatrix = np.loadtxt(os.path.join(cls.__dir, cls.__THROUGHPUT_MATRIX_FILE_NAME))     
-        
-        cls.servicesList['IP No.'].replace("0",value=None,inplace=True)
-        pass
 
 
     def save_lists_tocsv(self):
