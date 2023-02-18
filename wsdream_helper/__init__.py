@@ -1,1 +1,1 @@
-from .wsdream_utility import dataset
+from .wsdream_utility import wsdream

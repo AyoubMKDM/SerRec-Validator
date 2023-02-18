@@ -4,6 +4,8 @@ from zipfile import ZipFile
 import shutil
 import pandas as pd
 import numpy as np
+from surprise import Dataset
+from surprise import Reader
 
 def dataset_downloader(dir=None, url="https://zenodo.org/record/1133476/files/wsdream_dataset1.zip?download=1"):
     """
@@ -69,9 +71,9 @@ def dataframe_fromtxt(file):
     return df
 
 
-class dataset:
+class wsdream:
     """
-    Singleton class contains an instance of the dataset, with the different tables i.e. usersList, servicesList, responseTimeMatrix, throughputMatrix.
+    Singleton class contains an instance of the WS-DREAM dataset, with the different tables i.e. usersList, servicesList, responseTimeMatrix, throughputMatrix.
     To simplify the interaction with the dataset.
     
     Attributes:
@@ -88,9 +90,11 @@ class dataset:
     __SERVICES_LIST_FILE_NAME="wslist.txt"
     __RESPONSE_TIME_MATRIX_FILE_NAME = "rtMatrix.txt"
     __THROUGHPUT_MATRIX_FILE_NAME = "tpMatrix.txt"
+    __READER = Reader(rating_scale=(0., 1.))
     __dir = None
     __instance = None
 
+    # TODO this verification is slow and computationaly expensive check it or add a way to skip later
     def __new__(cls, dir=None, url="https://zenodo.org/record/1133476/files/wsdream_dataset1.zip?download=1"):
         if (cls.__instance is None):
             print('Creating the dataset object ...')
@@ -100,7 +104,6 @@ class dataset:
             if dir is not None:
                 full_path = os.path.join(full_path,cls.__dir)
                 # print(full_path)
-                
             # Check if the data in the specified directory exists
             if os.path.exists(full_path):
                 ls = os.listdir(full_path)
@@ -111,7 +114,6 @@ class dataset:
                         dataset_downloader(url=url,dir=cls.__dir)
             else:
                 dataset_downloader(url=url, dir=dir)
-
             # Initialize the class atributes 
             if cls.__dir is None:
                 cls.usersList = dataframe_fromtxt(file=cls.__USERS_LIST_FILE_NAME)
@@ -123,13 +125,31 @@ class dataset:
                 cls.servicesList = dataframe_fromtxt(file=os.path.join(cls.__dir, cls.__SERVICES_LIST_FILE_NAME))
                 cls.responseTimeMatrix = np.loadtxt(os.path.join(cls.__dir, cls.__RESPONSE_TIME_MATRIX_FILE_NAME))
                 cls.throughputMatrix = np.loadtxt(os.path.join(cls.__dir, cls.__THROUGHPUT_MATRIX_FILE_NAME))  
-            
                 cls.servicesList['IP No.'].replace("0",value=None,inplace=True)
             # Creating the class 
-            cls.__instance = super(dataset, cls).__new__(cls)
-            print("** DONE ** \n The dataset is accessible")
+            cls.__pd_responseTime, cls.responseTimeData = cls._get_surprise_dataset(cls, cls.responseTimeMatrix)
+            cls.pd_throughput, cls.throughputData = cls._get_surprise_dataset(cls, cls.throughputMatrix)
+            cls.__instance = super(wsdream, cls).__new__(cls)
+            print("\t\t** DONE ** \n The dataset is accessible")
         return cls.__instance 
 
+    # TODO add normalisation attribute
+    def _get_surprise_dataset(self, matrix):
+        # Converting matrix to list
+        list_dataset = self._list_from_matrix(self, matrix)
+        # Converting list to Pandas DataFrame
+        pd_list = pd.DataFrame(list_dataset,columns=['UsersID', 'ServicesID', 'Rating'])
+        #Data Normalization
+        min = pd_list['Rating'].min()
+        max = pd_list['Rating'].max()
+        pd_list['Rating'] = 1 - (pd_list['Rating'] - min) / (max - min)
+        # Converting Dataframe to surprise Dataset object
+        data = Dataset.load_from_df(pd_list, self.__READER)
+        return pd_list,data
+
+    def _list_from_matrix(self, matrix):
+        data_list = [[i,j,matrix[i][j]] for i in range(matrix.shape[0]) for j in range(matrix.shape[1]) if matrix[i][j] != -1]
+        return data_list
 
     def save_lists_tocsv(self):
         """
@@ -141,4 +161,16 @@ class dataset:
         """
         self.usersList.to_csv("usersList.csv")
         self.servicesList.to_csv("servicesList.csv")
-        pass
+        pass 
+
+    def get_responseTime_with_d_desity(self, d, randrom_state=1):
+        frac = d/100
+        copy = self.__pd_responseTime.sample(frac=frac, random_state=randrom_state, ignore_index=True)
+        data = Dataset.load_from_df(copy, self.__READER)
+        return data
+
+    def get_throughput_with_d_desity(self, d, randrom_state=1):
+        frac = d/100
+        copy = self.pd_throughput.sample(frac=frac, random_state=randrom_state, ignore_index=True)
+        data = Dataset.load_from_df(copy, self.__READER)
+        return data
