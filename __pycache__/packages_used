@@ -1,0 +1,6 @@
+pandas
+numpy
+surprise.accuracy
+collections.defaultdict
+from surprise import Dataset
+from surprise import Reader

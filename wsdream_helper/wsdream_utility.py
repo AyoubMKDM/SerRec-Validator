@@ -128,7 +128,7 @@ class wsdream:
                 cls.servicesList['IP No.'].replace("0",value=None,inplace=True)
             # Creating the class 
             cls.__pd_responseTime, cls.responseTimeData = cls._get_surprise_dataset(cls, cls.responseTimeMatrix)
-            cls.pd_throughput, cls.throughputData = cls._get_surprise_dataset(cls, cls.throughputMatrix)
+            cls.__pd_throughput, cls.throughputData = cls._get_surprise_dataset(cls, cls.throughputMatrix)
             cls.__instance = super(wsdream, cls).__new__(cls)
             print("\t\t** DONE ** \n The dataset is accessible")
         return cls.__instance 
@@ -171,6 +171,6 @@ class wsdream:
 
     def get_throughput_with_d_desity(self, d, randrom_state=1):
         frac = d/100
-        copy = self.pd_throughput.sample(frac=frac, random_state=randrom_state, ignore_index=True)
+        copy = self.__pd_throughput.sample(frac=frac, random_state=randrom_state, ignore_index=True)
         data = Dataset.load_from_df(copy, self.__READER)
         return data
