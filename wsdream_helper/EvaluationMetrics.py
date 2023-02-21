@@ -8,10 +8,10 @@ import itertools
 class Metrics:
 
     def MAE(predictions):
-        return accuracy.mae(predictions, verbos=False)
+        return accuracy.mae(predictions, verbose=False)
 
     def RMSE(predictions):
-        return accuracy.rmse(predictions, verbos=False)
+        return accuracy.rmse(predictions, verbose=False)
 
     def get_top_n(predictions,n=10,minimum_throuput=0.):
         data_list = list[3]
