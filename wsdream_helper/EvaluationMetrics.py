@@ -113,18 +113,18 @@ class Metrics:
         return summation / total
 
     # What percentage of users have at least one "good" recommendation
-    def UserCoverage(top_n_predicted, num_users, throuput_threshold=0):
+    def user_coverage(top_n_predicted, number_users, ratingThreshold=0):
         hits = 0
-        for user_id in top_n_predicted.keys():
+        for userID in top_n_predicted.keys():
             hit = False
-            for service_id, predicted_throuput in top_n_predicted[user_id]:
-                if (predicted_throuput >= throuput_threshold):
+            for serviceID, predictedRating in top_n_predicted[userID]:
+                if (predictedRating >= ratingThreshold):
                     hit = True
                     break
             if (hit):
                 hits += 1
 
-        return hits / num_users
+        return hits / number_users
 
     def Diversity(top_n_predicted, sims_algo):
         n = 0
