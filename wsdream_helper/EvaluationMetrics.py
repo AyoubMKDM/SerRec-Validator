@@ -92,17 +92,17 @@ class Metrics:
         for rating in sorted(hits.keys()):
             print (rating, hits[rating] / total[rating])
 
-    def AverageReciprocalHitRank(top_n_predicted, left_out_predictions):
+    def average_reciprocal_hit_rank(top_n_predicted, left_out_predictions):
         summation = 0
         total = 0
         # For each left-out rating
-        for user_id, left_out_service_id, actual_throuput, estimated_throuput, _ in left_out_predictions:
+        for userID, leftOutServiceID, actualRating, estimatedRating, _ in left_out_predictions:
             # Is it in the predicted top N for this user?
             hitRank = 0
             rank = 0
-            for service_id, predicted_throuput in top_n_predicted[int(user_id)]:
+            for serviceID, predictedRating in top_n_predicted[int(userID)]:
                 rank = rank + 1
-                if (int(left_out_service_id) == service_id):
+                if (int(leftOutServiceID) == serviceID):
                     hitRank = rank
                     break
             if (hitRank > 0) :
