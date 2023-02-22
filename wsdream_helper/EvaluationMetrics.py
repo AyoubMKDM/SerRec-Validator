@@ -27,18 +27,18 @@ class Metrics:
 
         return topN
 
-    def HitRate(top_n_predicted, left_out_predictions):
+    def hit_rate(top_n_predicted, left_out_predictions):
         hits = 0
         total = 0
 
         # For each left-out rating
-        for left_out in left_out_predictions:
-            user_id = left_out[0]
-            left_out_service_id = left_out[1]
+        for left_out_item in left_out_predictions:
+            userID = left_out_item[0]
+            leftOutServiceID = left_out_item[1]
             # Is it in the predicted top 10 for this user?
             hit = False
-            for service_id, predicted_throuput in top_n_predicted[int(user_id)]:
-                if (int(left_out_service_id) == int(service_id)):
+            for serviceID, predictedRating in top_n_predicted[int(userID)]:
+                if (int(leftOutServiceID) == int(serviceID)):
                     hit = True
                     break
             if (hit) :
