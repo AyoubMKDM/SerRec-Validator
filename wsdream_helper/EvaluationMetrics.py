@@ -71,26 +71,26 @@ class Metrics:
         # Compute overall precision
         return hits/total
 
-    def RatingHitRate(top_n_predicted, left_out_predictions):
+    def rating_hit_rate(top_n_predicted, left_out_predictions):
         hits = defaultdict(float)
         total = defaultdict(float)
 
         # For each left-out rating
-        for user_id, left_out_service_id, actual_throuput, estimated_throuput, _ in left_out_predictions:
+        for userID, leftOutServiceID, actualRating, estimatedRating, _ in left_out_predictions:
             # Is it in the predicted top N for this user?
             hit = False
-            for service_id, predicted_throuput in top_n_predicted[int(user_id)]:
-                if (int(left_out_service_id) == service_id):
+            for serviceID, predictedRating in top_n_predicted[int(userID)]:
+                if (int(leftOutServiceID) == serviceID):
                     hit = True
                     break
             if (hit) :
-                hits[actual_throuput] += 1
+                hits[actualRating] += 1
 
-            total[actual_throuput] += 1
+            total[actualRating] += 1
 
         # Compute overall precision
-        for throuput in sorted(hits.keys()):
-            print (throuput, hits[throuput] / total[throuput])
+        for rating in sorted(hits.keys()):
+            print (rating, hits[rating] / total[rating])
 
     def AverageReciprocalHitRank(top_n_predicted, left_out_predictions):
         summation = 0
