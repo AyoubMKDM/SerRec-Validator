@@ -144,13 +144,13 @@ class Metrics:
         S = total / n
         return (1-S)
 
-    def Novelty(top_n_predicted, rankings):
+    def novelty(top_n_predicted, rankings):
         n = 0
         total = 0
-        for user_id in top_n_predicted.keys():
-            for throuput in top_n_predicted[user_id]:
-                service_id = throuput[0]
-                rank = rankings[service_id]
+        for userID in top_n_predicted.keys():
+            for rating in top_n_predicted[userID]:
+                serviceID = rating[0]
+                rank = rankings[serviceID]
                 total += rank
                 n += 1
         return total / n
