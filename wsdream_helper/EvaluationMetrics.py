@@ -49,18 +49,18 @@ class Metrics:
         # Compute overall precision
         return hits/total
 
-    def CumulativeHitRate(top_n_prediction, left_out_predictions, throuput_cut_off=0):
+    def cumulative_hit_rate(top_n_predicted, left_out_predictions, ratingCutoff=0):
         hits = 0
         total = 0
 
         # For each left-out rating
-        for user_id, left_out_service_id, actual_throuput, estimated_throuput, _ in left_out_predictions:
+        for userID, leftOutServiceID, actualRating, estimatedRating, _ in left_out_predictions:
             # Only look at ability to recommend things the users actually liked...
-            if (actual_throuput >= throuput_cut_off):
+            if (actualRating >= ratingCutoff):
                 # Is it in the predicted top 10 for this user?
                 hit = False
-                for service_id, predicted_throuput in top_n_prediction[int(user_id)]:
-                    if (int(left_out_service_id) == service_id):
+                for serviceID, predictedRating in top_n_predicted[int(userID)]:
+                    if (int(leftOutServiceID) == serviceID):
                         hit = True
                         break
                 if (hit) :
