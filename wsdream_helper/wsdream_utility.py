@@ -85,7 +85,7 @@ class wsdream:
     Methods:
     save_lists_tocsv (None) saves the usersList, and servicesList DataFrames into a CSV file when needed.
     """
-    # TODO create a final static url var
+    # TODO create a final static url varinteractions_full_df
     __USERS_LIST_FILE_NAME="userlist.txt"
     __SERVICES_LIST_FILE_NAME="wslist.txt"
     __RESPONSE_TIME_MATRIX_FILE_NAME = "rtMatrix.txt"
