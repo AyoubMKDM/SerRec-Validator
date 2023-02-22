@@ -13,20 +13,19 @@ class Metrics:
     def RMSE(predictions):
         return accuracy.rmse(predictions, verbose=False)
 
-    def get_top_n(predictions,n=10,minimum_throuput=0.):
-        data_list = list[3]
-        top_n = defaultdict(list)
-        # top_n = defaultdict([userID, serviceID, actualThroughput, estimatedThroughput 
-        for user_id, service_id, actualThroughput, estimatedThroughput, _ in predictions:
-            if estimatedThroughput >= minimum_throuput:
-                top_n[int(user_id)].append(int(service_id),estimatedThroughput)
+    def get_top_n(predictions, n=10, minimumRating=0.0):
+        topN = defaultdict(list)
 
-        for user_id, throuputs in top_n.items():
-            throuputs.sort(key=lambda x: x[1], reverse=True)
 
-            top_n[int(user_id)] = throuputs[:n]
+        for userID, serviceID, actualRating, estimatedRating, _ in predictions:
+            if (estimatedRating >= minimumRating):
+                topN[int(userID)].append((int(serviceID), estimatedRating))
 
-        return top_n
+        for userID, ratings in topN.items():
+            ratings.sort(key=lambda x: x[1], reverse=True)
+            topN[int(userID)] = ratings[:n]
+
+        return topN
 
     def HitRate(top_n_predicted, left_out_predictions):
         hits = 0
