@@ -6,10 +6,13 @@ from collections import defaultdict
 import itertools
 
 def MAE(predictions, verbose=True):
-    return accuracy.mae(predictions, verbose=verbose)
+    return accuracy.mae(predictions, verbose)
 
 def RMSE(predictions, verbose=True):
-    return accuracy.rmse(predictions, verbose=verbose)
+    return accuracy.rmse(predictions, verbose)
+
+def MSE(predictions, verbose=True):
+    return accuracy.mse(predictions, verbose)
 
 def get_top_n(predictions, n=10, minimumRating=0.0, verbose=False):
     topN = defaultdict(list)
