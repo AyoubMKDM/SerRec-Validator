@@ -125,27 +125,25 @@ class wsdream:
                 cls.servicesList = dataframe_fromtxt(file=os.path.join(cls.__dir, cls.__SERVICES_LIST_FILE_NAME))
                 cls.responseTimeMatrix = np.loadtxt(os.path.join(cls.__dir, cls.__RESPONSE_TIME_MATRIX_FILE_NAME))
                 cls.throughputMatrix = np.loadtxt(os.path.join(cls.__dir, cls.__THROUGHPUT_MATRIX_FILE_NAME))  
-                cls.servicesList['IP No.'].replace("0",value=None,inplace=True)
-            # Creating the class 
-            cls.__pd_responseTime, cls.responseTimeData = cls._get_surprise_dataset(cls, cls.responseTimeMatrix)
-            cls.__pd_throughput, cls.throughputData = cls._get_surprise_dataset(cls, cls.throughputMatrix)
+                cls.servicesList['IP No.'].replace("0",value=None,inplace=True) 
+            cls.__df_responseTime = cls._df_from_matrix(cls, cls.responseTimeMatrix)
+            cls.__dfd_throughput = cls._df_from_matrix(cls, cls.throughputMatrix)
+            # Creating the class
             cls.__instance = super(wsdream, cls).__new__(cls)
             print("\t\t** DONE ** \n The dataset is accessible")
         return cls.__instance 
 
     # TODO add normalisation attribute
-    def _get_surprise_dataset(self, matrix):
+    def _df_from_matrix(self, matrix):
         # Converting matrix to list
         list_dataset = self._list_from_matrix(self, matrix)
         # Converting list to Pandas DataFrame
         pd_list = pd.DataFrame(list_dataset,columns=['UsersID', 'ServicesID', 'Rating'])
-        #Data Normalization
+        #Data Normalizationget_surprise_dataset
         min = pd_list['Rating'].min()
         max = pd_list['Rating'].max()
         pd_list['Rating'] = 1 - (pd_list['Rating'] - min) / (max - min)
-        # Converting Dataframe to surprise Dataset object
-        data = Dataset.load_from_df(pd_list, self.__READER)
-        return pd_list,data
+        return pd_list
 
     def _list_from_matrix(self, matrix):
         data_list = [[i,j,matrix[i][j]] for i in range(matrix.shape[0]) for j in range(matrix.shape[1]) if matrix[i][j] != -1]
@@ -163,14 +161,28 @@ class wsdream:
         self.servicesList.to_csv("servicesList.csv")
         pass 
 
-    def get_responseTime_with_d_desity(self, d, randrom_state=1):
-        frac = d/100
-        copy = self.__pd_responseTime.sample(frac=frac, random_state=randrom_state, ignore_index=True)
+    def get_responseTime(self, density=100, randrom_state=1):
+        """
+        Returns ResponseTime in Surprise.Dataset object with whatever density percentage you want from 0 to 100.
+        Parameters:
+            density - int, optional for the density of the data to work with, by default it's 100.
+            random_state - int, optional for the data randomization, used for randomizing lower density data and obtaining consisting results.
+        """
+        frac = density/100
+        copy = self.__df_responseTime.sample(frac=frac, random_state=randrom_state, ignore_index=True)
+        # Converting Dataframe to surprise Dataset object
         data = Dataset.load_from_df(copy, self.__READER)
         return data
 
-    def get_throughput_with_d_desity(self, d, randrom_state=1):
-        frac = d/100
-        copy = self.__pd_throughput.sample(frac=frac, random_state=randrom_state, ignore_index=True)
+    def get_throughput(self, density=100, randrom_state=1):
+        """
+        Returns Throughput in Surprise.Dataset object with whatever density percentage from 0 to 100.
+        Parameters:
+            density - int, optional for the density of the data to work with, by default it's 100.
+            random_state - int, optional for the data randomization, used for randomizing lower density data and obtaining consisting results.
+        """
+        frac = density/100
+        copy = self.__df_throughput.sample(frac=frac, random_state=randrom_state, ignore_index=True)
+        # Converting Dataframe to surprise Dataset object
         data = Dataset.load_from_df(copy, self.__READER)
         return data
