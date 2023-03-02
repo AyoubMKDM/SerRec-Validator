@@ -96,7 +96,7 @@ class wsdream:
     __instance = None
 
     # TODO this verification is slow and computationaly expensive check it or add a way to skip later
-    def __new__(cls, dir=None, url="https://zenodo.org/record/1133476/files/wsdream_dataset1.zip?download=1"):
+    def __new__(cls, dir=None, url="https://zenodo.org/record/1133476/files/wsdream_dataset1.zip?download=1", data_normalization=Normalization.z_score):
         if (cls.__instance is None):
             print('Creating the dataset object ...')
             cls.__dir = dir
@@ -127,8 +127,8 @@ class wsdream:
                 cls.responseTimeMatrix = np.loadtxt(os.path.join(cls.__dir, cls.__RESPONSE_TIME_MATRIX_FILE_NAME))
                 cls.throughputMatrix = np.loadtxt(os.path.join(cls.__dir, cls.__THROUGHPUT_MATRIX_FILE_NAME))  
                 cls.servicesList['IP No.'].replace("0",value=None,inplace=True) 
-            cls.__df_responseTime = cls._df_from_matrix(cls, cls.responseTimeMatrix)
-            cls.__df_throughput = cls._df_from_matrix(cls, cls.throughputMatrix)
+            cls.__df_responseTime = cls._df_from_matrix(cls, cls.responseTimeMatrix, data_normalization)
+            cls.__df_throughput = cls._df_from_matrix(cls, cls.throughputMatrix, data_normalization)
             # Creating the class
             cls.__instance = super(wsdream, cls).__new__(cls)
             print("\t\t** DONE ** \n The dataset is accessible")
