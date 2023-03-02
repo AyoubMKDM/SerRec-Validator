@@ -4,6 +4,7 @@ from surprise import accuracy
 #that defaultdict never raises a KeyError. It provides a default value for the key that does not exists.
 from collections import defaultdict
 import itertools
+from .utility import getPopularityRanks
 
 def MAE(predictions, verbose=True):
     return accuracy.mae(predictions, verbose)
@@ -155,7 +156,8 @@ def Diversity(top_n_predicted, sims_algo):
     S = total / n
     return (1-S)
 
-def novelty(top_n_predicted, rankings, verbose=True):
+def novelty(top_n_predicted, data_df, max_value, verbose=True):
+    rankings = getPopularityRanks(data_df, max_value)
     n = 0
     total = 0
     for userID in top_n_predicted.keys():

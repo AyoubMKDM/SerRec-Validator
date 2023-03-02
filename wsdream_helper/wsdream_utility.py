@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 from surprise import Dataset
 from surprise import Reader
+from .utility import Normalization
 
 def dataset_downloader(dir=None, url="https://zenodo.org/record/1133476/files/wsdream_dataset1.zip?download=1"):
     """
@@ -90,7 +91,7 @@ class wsdream:
     __SERVICES_LIST_FILE_NAME="wslist.txt"
     __RESPONSE_TIME_MATRIX_FILE_NAME = "rtMatrix.txt"
     __THROUGHPUT_MATRIX_FILE_NAME = "tpMatrix.txt"
-    __READER = Reader(rating_scale=(0., 1.))
+    __READER = Reader()
     __dir = None
     __instance = None
 
@@ -127,22 +128,20 @@ class wsdream:
                 cls.throughputMatrix = np.loadtxt(os.path.join(cls.__dir, cls.__THROUGHPUT_MATRIX_FILE_NAME))  
                 cls.servicesList['IP No.'].replace("0",value=None,inplace=True) 
             cls.__df_responseTime = cls._df_from_matrix(cls, cls.responseTimeMatrix)
-            cls.__dfd_throughput = cls._df_from_matrix(cls, cls.throughputMatrix)
+            cls.__df_throughput = cls._df_from_matrix(cls, cls.throughputMatrix)
             # Creating the class
             cls.__instance = super(wsdream, cls).__new__(cls)
             print("\t\t** DONE ** \n The dataset is accessible")
         return cls.__instance 
 
     # TODO add normalisation attribute
-    def _df_from_matrix(self, matrix):
+    def _df_from_matrix(self, matrix, normalization=Normalization.z_score):
         # Converting matrix to list
         list_dataset = self._list_from_matrix(self, matrix)
         # Converting list to Pandas DataFrame
         pd_list = pd.DataFrame(list_dataset,columns=['UsersID', 'ServicesID', 'Rating'])
-        #Data Normalizationget_surprise_dataset
-        min = pd_list['Rating'].min()
-        max = pd_list['Rating'].max()
-        pd_list['Rating'] = 1 - (pd_list['Rating'] - min) / (max - min)
+        #Data Normalization get_surprise_dataset
+        pd_list = normalization(pd_list)
         return pd_list
 
     def _list_from_matrix(self, matrix):
@@ -171,6 +170,9 @@ class wsdream:
         frac = density/100
         copy = self.__df_responseTime.sample(frac=frac, random_state=randrom_state, ignore_index=True)
         # Converting Dataframe to surprise Dataset object
+        min = int(self.__df_responseTime.Rating.min())
+        max = int(self.__df_responseTime.Rating.max()) + 1
+        self.__READER.rating_scale = (min, max)
         data = Dataset.load_from_df(copy, self.__READER)
         return data
 
@@ -184,5 +186,8 @@ class wsdream:
         frac = density/100
         copy = self.__df_throughput.sample(frac=frac, random_state=randrom_state, ignore_index=True)
         # Converting Dataframe to surprise Dataset object
+        min = self.__df_throughput.Rating.min
+        max = self.__df_throughput.Rating.max
+        self.__READER.rating_scale = (min, max)
         data = Dataset.load_from_df(copy, self.__READER)
         return data
