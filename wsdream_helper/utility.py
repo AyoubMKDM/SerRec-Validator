@@ -1,3 +1,5 @@
+from surprise.model_selection import train_test_split,LeaveOneOut
+
 class Normalization:
     @staticmethod
     def scaling_to_range(data_df):
@@ -47,3 +49,52 @@ def getPopularityRanks(data_df, max_value):
   rankings = service_popularity_df.set_index('ServicesID') / max_value
 
   return rankings.to_dict()['Rating']
+
+class DataSplitter:
+    """
+    This class will alow us to have a consistance in the evaluation by having the same sets for training and testing models.
+    """
+    # TODO add polymorphism on __init__() to work with data
+    def __init__(self, dataset, density, randome_state=6) -> None:
+        response_time = dataset.get_responseTime(density, randome_state)
+        throughput = dataset.get_throughput(density, randome_state)
+
+        self.trainset_from_full_data = {"response_time" : response_time.build_full_trainset(),
+                                         "through_put" : throughput.build_full_trainset()}
+        self.anti_testset_from_full_data = {"response_time" : self.trainset_from_full_data['response_time'].build_anti_testset(),
+                                         "through_put" : self.trainset_from_full_data['through_put'].build_anti_testset()}
+
+        response_time_trainset, response_time_testset = train_test_split(response_time)
+        throughput_trainset, throughput_testset = train_test_split(throughput)
+        
+        self.splitset_for_accuracy = {"response_time" : (response_time_trainset, response_time_testset),
+                                        "through_put" : (throughput_trainset, throughput_testset)}
+
+        LOOCV = LeaveOneOut(n_splits=1,random_state=randome_state)
+        # response_time_trainset, response_time_testset = LOOCV.split(response_time)
+        # throughput_trainset, throughput_testset = LOOCV.split(throughput)
+        
+        self.anti_testset = {"response_time" : response_time_trainset.build_anti_testset(),
+                            "through_put" : throughput_trainset.build_anti_testset()}
+        
+        self.splitset_for_hit_rate = {"response_time" : (response_time_trainset, response_time_testset),
+                                        "through_put" : (throughput_trainset, throughput_testset)}
+
+        
+
+
+        
+    # def get_trainsets_for_accuracy():
+    #     pass
+
+    # def get_testsets_for_accuracy():
+    #     pass
+
+    # def get_trainsets_for_hit_rate():
+    #     pass
+
+    # def get_testsets_for_hit_rate():
+    #     pass
+
+    # def get_trainsets_from_full_data():
+    #     pass

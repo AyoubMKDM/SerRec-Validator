@@ -160,7 +160,7 @@ class wsdream:
         self.servicesList.to_csv("servicesList.csv")
         pass 
 
-    def get_responseTime(self, density=100, randrom_state=1):
+    def get_responseTime(self, density=100, randrom_state=6):
         """
         Returns ResponseTime in Surprise.Dataset object with whatever density percentage you want from 0 to 100.
         Parameters:
@@ -176,7 +176,7 @@ class wsdream:
         data = Dataset.load_from_df(copy, self.__READER)
         return data
 
-    def get_throughput(self, density=100, randrom_state=1):
+    def get_throughput(self, density=100, randrom_state=6):
         """
         Returns Throughput in Surprise.Dataset object with whatever density percentage from 0 to 100.
         Parameters:
