@@ -109,7 +109,7 @@ for trainSet, testSet in LOOCV.split(data):
 print("\nComputing complete recommendations, no hold outs...")
 algo.fit(fullTrainSet)
 # bigTestSet = fullTrainSet.build_anti_testset()
-bigTestSet = splits.anti_testset_from_full_data
+bigTestSet = splits.anti_testset_from_full_data['response_time']
 allPredictions = algo.test(bigTestSet)
 topNPredicted = EvaluationMetrics.get_top_n(allPredictions, n=10)
 

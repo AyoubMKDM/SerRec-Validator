@@ -170,7 +170,7 @@ class wsdream:
         frac = density/100
         copy = self.__df_responseTime.sample(frac=frac, random_state=randrom_state, ignore_index=True)
         # Converting Dataframe to surprise Dataset object
-        min = int(self.__df_responseTime.Rating.min())
+        min = int(self.__df_responseTime.Rating.min()) - 1
         max = int(self.__df_responseTime.Rating.max()) + 1
         self.__READER.rating_scale = (min, max)
         data = Dataset.load_from_df(copy, self.__READER)
@@ -186,8 +186,9 @@ class wsdream:
         frac = density/100
         copy = self.__df_throughput.sample(frac=frac, random_state=randrom_state, ignore_index=True)
         # Converting Dataframe to surprise Dataset object
-        min = self.__df_throughput.Rating.min
-        max = self.__df_throughput.Rating.max
+        # TODO fix this as get_responseTime
+        min = int(self.__df_throughput.Rating.min()) - 1
+        max = int(self.__df_throughput.Rating.max()) + 1
         self.__READER.rating_scale = (min, max)
         data = Dataset.load_from_df(copy, self.__READER)
         return data
