@@ -71,14 +71,14 @@ class DataSplitter:
                                         "through_put" : (throughput_trainset, throughput_testset)}
 
         LOOCV = LeaveOneOut(n_splits=1,random_state=randome_state)
-        # response_time_trainset, response_time_testset = LOOCV.split(response_time)
-        # throughput_trainset, throughput_testset = LOOCV.split(throughput)
+        for response_time_trainset, response_time_testset in LOOCV.split(response_time):
+            self.splitset_for_hit_rate = {"response_time" : (response_time_trainset, response_time_testset)}
+            
+        for throughput_trainset, throughput_testset in LOOCV.split(throughput):
+            self.splitset_for_hit_rate['through_put'] = (throughput_trainset, throughput_testset)
         
-        self.anti_testset = {"response_time" : response_time_trainset.build_anti_testset(),
+        self.anti_testset_for_hit_rate = {"response_time" : response_time_trainset.build_anti_testset(),
                             "through_put" : throughput_trainset.build_anti_testset()}
-        
-        self.splitset_for_hit_rate = {"response_time" : (response_time_trainset, response_time_testset),
-                                        "through_put" : (throughput_trainset, throughput_testset)}
 
         
 
