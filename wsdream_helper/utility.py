@@ -70,7 +70,7 @@ class DataSplitter:
         self.splitset_for_accuracy = {"response_time" : (response_time_trainset, response_time_testset),
                                         "through_put" : (throughput_trainset, throughput_testset)}
 
-        LOOCV = LeaveOneOut(n_splits=1,random_state=randome_state)
+        LOOCV = LeaveOneOut(n_splits=1,random_state=random_state)
         for response_time_trainset, response_time_testset in LOOCV.split(response_time):
             self.splitset_for_hit_rate = {"response_time" : (response_time_trainset, response_time_testset)}
             

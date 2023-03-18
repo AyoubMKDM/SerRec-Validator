@@ -1,11 +1,10 @@
 from wsdream_helper import wsdream_utility
 from surprise import SVD
-from surprise.model_selection import train_test_split,LeaveOneOut
 from wsdream_helper import EvaluationMetrics
 from surprise import KNNBaseline
 from wsdream_helper.utility import DataSplitter
 
-dataset = wsdream_utility.wsdream()
+dataset = wsdream_utility.Wsdream()
 
 print("Loading response time data ...")
 data = dataset.get_responseTime(density=5)
@@ -77,5 +76,5 @@ print("\nUser coverage: ", EvaluationMetrics.user_coverage(topNPredicted, fullTr
 # print("\nDiversity: ", EvaluationMetrics.Diversity(topNPredicted, simsAlgo))
 
 # Measure novelty (average popularity rank of recommendations):
-print("\nNovelty (average popularity rank): ", EvaluationMetrics.novelty(topNPredicted, data.df, wsdream_utility.wsdream.usersList.shape[0]))
+print("\nNovelty (average popularity rank): ", EvaluationMetrics.novelty(topNPredicted, data.df, wsdream_utility.Wsdream.usersList.shape[0]))
 

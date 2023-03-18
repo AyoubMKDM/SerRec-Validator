@@ -130,7 +130,7 @@ class Wsdream:
             cls.__df_responseTime = cls._df_from_matrix(cls, cls.responseTimeMatrix, data_normalization)
             cls.__df_throughput = cls._df_from_matrix(cls, cls.throughputMatrix, data_normalization)
             # Creating the class
-            cls.__instance = super(wsdream, cls).__new__(cls)
+            cls.__instance = super(Wsdream, cls).__new__(cls)
             print("\t\t** DONE ** \n The dataset is accessible")
         return cls.__instance 
 
