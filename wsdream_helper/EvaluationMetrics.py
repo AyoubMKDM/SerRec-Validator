@@ -139,22 +139,23 @@ def user_coverage(top_n_predicted, number_users, ratingThreshold=0, verbose=True
     return hits / number_users
 
 def Diversity(top_n_predicted, sims_algo):
-    n = 0
-    total = 0
-    sims_matrix = sims_algo.compute_similarities()
-    for user_id in top_n_predicted.keys():
-        pairs = itertools.combinations(top_n_predicted[user_id], 2)
-        for pair in pairs:
-            service1 = pair[0][0]
-            service2 = pair[1][0]
-            innerID1 = sims_algo.trainset.to_inner_iid(str(service1))
-            innerID2 = sims_algo.trainset.to_inner_iid(str(service2))
-            similarity = sims_matrix[innerID1][innerID2]
-            total += similarity
-            n += 1
+    # n = 0
+    # total = 0
+    # sims_matrix = sims_algo.compute_similarities()
+    # for user_id in top_n_predicted.keys():
+    #     pairs = itertools.combinations(top_n_predicted[user_id], 2)
+    #     for pair in pairs:
+    #         service1 = pair[0][0]
+    #         service2 = pair[1][0]
+    #         innerID1 = sims_algo.trainset.to_inner_iid(str(service1))
+    #         innerID2 = sims_algo.trainset.to_inner_iid(str(service2))
+    #         similarity = sims_matrix[innerID1][innerID2]
+    #         total += similarity
+    #         n += 1
 
-    S = total / n
-    return (1-S)
+    # S = total / n
+    # return (1-S)
+    pass
 
 def novelty(top_n_predicted, data_df, max_value, verbose=True):
     rankings = getPopularityRanks(data_df, max_value)

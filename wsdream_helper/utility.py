@@ -55,9 +55,9 @@ class DataSplitter:
     This class will alow us to have a consistance in the evaluation by having the same sets for training and testing models.
     """
     # TODO add polymorphism on __init__() to work with data
-    def __init__(self, dataset, density, randome_state=6) -> None:
-        response_time = dataset.get_responseTime(density, randome_state)
-        throughput = dataset.get_throughput(density, randome_state)
+    def __init__(self, dataset, density=100, random_state=6) -> None:
+        response_time = dataset.get_responseTime(density, random_state)
+        throughput = dataset.get_throughput(density, random_state)
 
         self.trainset_from_full_data = {"response_time" : response_time.build_full_trainset(),
                                          "through_put" : throughput.build_full_trainset()}

@@ -72,7 +72,7 @@ def dataframe_fromtxt(file):
     return df
 
 
-class wsdream:
+class Wsdream:
     """
     Singleton class contains an instance of the WS-DREAM dataset, with the different tables i.e. usersList, servicesList, responseTimeMatrix, throughputMatrix.
     To simplify the interaction with the dataset.
@@ -86,7 +86,7 @@ class wsdream:
     Methods:
     save_lists_tocsv (None) saves the usersList, and servicesList DataFrames into a CSV file when needed.
     """
-    # TODO create a final static url varinteractions_full_df
+    # TODO create a final static url var interactions_full_df
     __USERS_LIST_FILE_NAME="userlist.txt"
     __SERVICES_LIST_FILE_NAME="wslist.txt"
     __RESPONSE_TIME_MATRIX_FILE_NAME = "rtMatrix.txt"
@@ -160,7 +160,7 @@ class wsdream:
         self.servicesList.to_csv("servicesList.csv")
         pass 
 
-    def get_responseTime(self, density=100, randrom_state=6):
+    def get_responseTime(self, density=100, random_state=6):
         """
         Returns ResponseTime in Surprise.Dataset object with whatever density percentage you want from 0 to 100.
         Parameters:
@@ -168,7 +168,7 @@ class wsdream:
             random_state - int, optional for the data randomization, used for randomizing lower density data and obtaining consisting results.
         """
         frac = density/100
-        copy = self.__df_responseTime.sample(frac=frac, random_state=randrom_state, ignore_index=True)
+        copy = self.__df_responseTime.sample(frac=frac, random_state=random_state, ignore_index=True)
         # Converting Dataframe to surprise Dataset object
         min = int(self.__df_responseTime.Rating.min()) - 1
         max = int(self.__df_responseTime.Rating.max()) + 1
@@ -176,7 +176,7 @@ class wsdream:
         data = Dataset.load_from_df(copy, self.__READER)
         return data
 
-    def get_throughput(self, density=100, randrom_state=6):
+    def get_throughput(self, density=100, random_state=6):
         """
         Returns Throughput in Surprise.Dataset object with whatever density percentage from 0 to 100.
         Parameters:
@@ -184,9 +184,8 @@ class wsdream:
             random_state - int, optional for the data randomization, used for randomizing lower density data and obtaining consisting results.
         """
         frac = density/100
-        copy = self.__df_throughput.sample(frac=frac, random_state=randrom_state, ignore_index=True)
+        copy = self.__df_throughput.sample(frac=frac, random_state=random_state, ignore_index=True)
         # Converting Dataframe to surprise Dataset object
-        # TODO fix this as get_responseTime
         min = int(self.__df_throughput.Rating.min()) - 1
         max = int(self.__df_throughput.Rating.max()) + 1
         self.__READER.rating_scale = (min, max)
