@@ -1,5 +1,5 @@
-import wsdream_utility
-import get_input_args
+from wsdream_helper import wsdream_utility
+from wsdream_helper import get_input_args
 
 def main():
     in_args = get_input_args.get_input_args()
