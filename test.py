@@ -3,6 +3,7 @@ from surprise import SVD
 from wsdream_helper import EvaluationMetrics
 from surprise import KNNBaseline
 from wsdream_helper.utility import DataSplitter
+from wsdream_helper.ModelEvaluator import ModelEvaluator
 
 dataset = wsdream_utility.Wsdream()
 
@@ -77,4 +78,10 @@ print("\nUser coverage: ", EvaluationMetrics.user_coverage(topNPredicted, fullTr
 
 # Measure novelty (average popularity rank of recommendations):
 print("\nNovelty (average popularity rank): ", EvaluationMetrics.novelty(topNPredicted, data.df, wsdream_utility.Wsdream.usersList.shape[0]))
+
+wsdream = wsdream_utility.Wsdream()
+splits = DataSplitter(wsdream, density=5)
+algo = SVD(random_state=10)
+model_evaluator = ModelEvaluator() 
+model_evaluator.evaluate(algo, splits)
 
