@@ -4,8 +4,10 @@ from wsdream_helper import EvaluationMetrics
 from surprise import KNNBaseline
 from wsdream_helper.utility import DataSplitter
 from wsdream_helper.ModelEvaluator import ModelEvaluator
+from wsdream_helper.wsdream_utility import WsdreamDataset
 
-dataset = wsdream_utility.Wsdream()
+# dataset = wsdream_utility.Wsdream()
+dataset = WsdreamDataset(wsdream_utility.WsdreamReader(),None)
 
 print("Loading response time data ...")
 data = dataset.get_responseTime(density=5)
@@ -77,10 +79,10 @@ print("\nUser coverage: ", EvaluationMetrics.user_coverage(topNPredicted, fullTr
 # print("\nDiversity: ", EvaluationMetrics.Diversity(topNPredicted, simsAlgo))
 
 # Measure novelty (average popularity rank of recommendations):
-print("\nNovelty (average popularity rank): ", EvaluationMetrics.novelty(topNPredicted, data.df, wsdream_utility.Wsdream.usersList.shape[0]))
+print("\nNovelty (average popularity rank): ", EvaluationMetrics.novelty(topNPredicted, data.df, wsdream_utility.WsdreamReader.usersList.shape[0]))
 
-wsdream = wsdream_utility.Wsdream()
-splits = DataSplitter(wsdream, density=5)
+# wsdream = wsdream_utility.Wsdream()
+splits = DataSplitter(dataset, density=5)
 algo = SVD(random_state=10)
 model_evaluator = ModelEvaluator() 
 model_evaluator.evaluate(algo, splits)

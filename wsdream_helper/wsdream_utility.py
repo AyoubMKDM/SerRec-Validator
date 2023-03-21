@@ -6,7 +6,9 @@ import pandas as pd
 import numpy as np
 from surprise import Dataset
 from surprise import Reader
-from .utility import Normalization
+from .utility import Normalization, DatasetFactory
+
+
 
 def dataset_downloader(dir=None, url="https://zenodo.org/record/1133476/files/wsdream_dataset1.zip?download=1"):
     """
@@ -27,6 +29,7 @@ def dataset_downloader(dir=None, url="https://zenodo.org/record/1133476/files/ws
     Example:
     >>> dataset_downloader('my_data_folder')
     """
+    # TODO make this return the file name
     # TODO Handle http and url exceptions .. Use https://docs.python.org/3/library/urllib.error.html#urllib.error.URLError 
     file_name = url.split('/')[-1]
     page = urlopener.urlopen(url)
@@ -92,7 +95,7 @@ def dataframe_fromtxt(file):
     return df
 
 
-class Wsdream:
+class WsdreamReader:
     """
     The Wsdream class is a singleton class that contains an instance of the WS-DREAM dataset, 
     with the different tables i.e. usersList, servicesList, responseTimeMatrix, throughputMatrix. 
@@ -120,7 +123,8 @@ class Wsdream:
     __instance = None
 
     # TODO this verification is slow and computationaly expensive check it or add a way to skip later
-    def __new__(cls, dir=None, url="https://zenodo.org/record/1133476/files/wsdream_dataset1.zip?download=1", data_normalization=Normalization.z_score):
+    def __new__(cls, dir=None, url="https://zenodo.org/record/1133476/files/wsdream_dataset1.zip?download=1"):
+        # TODO lose the ifs for verifying the exictance of the files on the system
         if (cls.__instance is None):
             print('Creating the dataset object ...')
             cls.__dir = dir
@@ -151,21 +155,19 @@ class Wsdream:
                 cls.responseTimeMatrix = np.loadtxt(os.path.join(cls.__dir, cls.__RESPONSE_TIME_MATRIX_FILE_NAME))
                 cls.throughputMatrix = np.loadtxt(os.path.join(cls.__dir, cls.__THROUGHPUT_MATRIX_FILE_NAME))  
                 cls.servicesList['IP No.'].replace("0",value=None,inplace=True) 
-            cls.__df_responseTime = cls._df_from_matrix(cls, cls.responseTimeMatrix, data_normalization)
-            cls.__df_throughput = cls._df_from_matrix(cls, cls.throughputMatrix, data_normalization)
+            cls.df_responseTime = cls._df_from_matrix(cls, cls.responseTimeMatrix)
+            cls.df_throughput = cls._df_from_matrix(cls, cls.throughputMatrix)
             # Creating the class
-            cls.__instance = super(Wsdream, cls).__new__(cls)
+            cls.__instance = super(WsdreamReader, cls).__new__(cls)
             print("\t\t** DONE ** \n The dataset is accessible")
         return cls.__instance 
 
     # TODO add normalisation attribute
-    def _df_from_matrix(self, matrix, normalization=Normalization.z_score):
+    def _df_from_matrix(self, matrix):
         # Converting matrix to list
         list_dataset = self._list_from_matrix(self, matrix)
         # Converting list to Pandas DataFrame
         pd_list = pd.DataFrame(list_dataset,columns=['UsersID', 'ServicesID', 'Rating'])
-        #Data Normalization get_surprise_dataset
-        pd_list = normalization(pd_list)
         return pd_list
 
     def _list_from_matrix(self, matrix):
@@ -182,7 +184,12 @@ class Wsdream:
         """
         self.usersList.to_csv("usersList.csv")
         self.servicesList.to_csv("servicesList.csv")
-        pass 
+        pass
+
+class WsdreamDataset(DatasetFactory):
+    def __init__(self, wsdream, normalization_strategy) -> None:
+        self.wsdream = wsdream
+        self.normalization_strategy = normalization_strategy
 
     def get_responseTime(self, density=100, random_state=6):
         """
@@ -191,15 +198,18 @@ class Wsdream:
             density - int, optional for the density of the data to work with, by default it's 100.
             random_state - int, optional for the data randomization, used for randomizing lower density data and obtaining consisting results.
         """
+        # TODO raise an exception
         frac = density/100
-        copy = self.__df_responseTime.sample(frac=frac, random_state=random_state, ignore_index=True)
+        copy = self.wsdream.df_responseTime.sample(frac=frac, random_state=random_state, ignore_index=True)
         # Converting Dataframe to surprise Dataset object
-        min = int(self.__df_responseTime.Rating.min()) - 1
-        max = int(self.__df_responseTime.Rating.max()) + 1
-        self.__READER.rating_scale = (min, max)
-        data = Dataset.load_from_df(copy, self.__READER)
+        min = int(self.wsdream.df_responseTime.Rating.min()) - 1
+        max = int(self.wsdream.df_responseTime.Rating.max()) + 1
+        reader = Reader(rating_scale=(min, max))
+        data = Dataset.load_from_df(copy, reader)
+        # #Data Normalization get_surprise_dataset
+        # pd_list = normalization(pd_list)
         return data
-
+        
     def get_throughput(self, density=100, random_state=6):
         """
         Returns Throughput in Surprise.Dataset object with whatever density percentage from 0 to 100.
@@ -207,11 +217,21 @@ class Wsdream:
             density - int, optional for the density of the data to work with, by default it's 100.
             random_state - int, optional for the data randomization, used for randomizing lower density data and obtaining consisting results.
         """
+        # TODO raise an exception
         frac = density/100
-        copy = self.__df_throughput.sample(frac=frac, random_state=random_state, ignore_index=True)
+        copy = self.wsdream.df_throughput.sample(frac=frac, random_state=random_state, ignore_index=True)
         # Converting Dataframe to surprise Dataset object
-        min = int(self.__df_throughput.Rating.min()) - 1
-        max = int(self.__df_throughput.Rating.max()) + 1
-        self.__READER.rating_scale = (min, max)
-        data = Dataset.load_from_df(copy, self.__READER)
+        min = int(self.wsdream.df_throughput.Rating.min()) - 1
+        max = int(self.wsdream.df_throughput.Rating.max()) + 1
+        reader = Reader(rating_scale=(min, max))
+        data = Dataset.load_from_df(copy, reader)
+        # #Data Normalization get_surprise_dataset
+        # pd_list = normalization(pd_list)
         return data
+    
+    def get_users(self) -> pd.DataFrame:
+        return self.wsdream.usersList
+    
+    def get_services(self) -> pd.DataFrame:
+        return self.wsdream.servicesList
+    

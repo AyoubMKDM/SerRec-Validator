@@ -1,4 +1,7 @@
 from surprise.model_selection import train_test_split,LeaveOneOut
+from abc import ABC, abstractmethod
+import pandas as pd
+from surprise import Dataset
 
 class Normalization:
     @staticmethod
@@ -98,3 +101,21 @@ class DataSplitter:
 
     # def get_trainsets_from_full_data():
     #     pass
+
+class DatasetFactory(ABC):
+
+    @abstractmethod
+    def get_responseTime(self) -> Dataset:
+        pass
+
+    @abstractmethod
+    def get_throughput(self) -> Dataset:
+        pass
+
+    @abstractmethod
+    def get_users(self) -> pd.DataFrame:
+        pass
+
+    @abstractmethod
+    def get_services(self) -> pd.DataFrame:
+        pass
