@@ -10,11 +10,22 @@ from .utility import Normalization
 
 def dataset_downloader(dir=None, url="https://zenodo.org/record/1133476/files/wsdream_dataset1.zip?download=1"):
     """
-    Retrieve and download all the WS-DREAM dataset as a zip file, then extract the content from the zip file and delete the latter.
-    This will add to the current directory four files: rtMatrix.txt, tpMatrix.txt, userlist.txt, wslist.txt.
+    Retrieve and download the WS-DREAM dataset as a zip file from the specified URL, 
+    then extract the content from the zip file and delete the latter. This function 
+    will add four files (rtMatrix.txt, tpMatrix.txt, userlist.txt, wslist.txt) to the 
+    specified directory or the current directory if no directory is specified.
+
     Parameters:
-        dir - String for the folder name specifying where the dataset will be stored default value is the current directory
-        url - String of the URL of the downloadable zip file with default value 'https://zenodo.org/record/1133476/files/wsdream_dataset1.zip?download=1'
+    dir (str): The directory where the dataset will be stored. Default is the current directory.
+    url (str): The URL of the downloadable zip file. The URL can be modified to download the 
+    WS-DREAM first dataset in case of a broken link or changing in the repository.
+    The default is 'https://zenodo.org/record/1133476/files/wsdream_dataset1.zip?download=1'.
+
+    Returns:
+    None
+
+    Example:
+    >>> dataset_downloader('my_data_folder')
     """
     # TODO Handle http and url exceptions .. Use https://docs.python.org/3/library/urllib.error.html#urllib.error.URLError 
     file_name = url.split('/')[-1]
@@ -52,12 +63,21 @@ def dataset_downloader(dir=None, url="https://zenodo.org/record/1133476/files/ws
 
 def dataframe_fromtxt(file):
     """
-    The original dataset provided is in .txt files which is not a convenient way to work with the dataset files.
-    This method reads the txt file containing the list of users or services, and translate the content to a pandas DataFrame.
+    Reads a .txt file containing a list of users or services and returns a pandas DataFrame object.
+
     Parameters:
-        file - String contain a file_name.txt of the.
-    return:
-        pandas.DataFrame object of the content of the file passed as a parameter
+        file (str): The name of the .txt file to be read.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the content of the .txt file.
+
+    Example:
+        >>> dataframe_fromtxt('userlist.txt')
+            User ID 	IP Address  	Country 	    IP No.  	AS  	                                Latitude	Longitude
+        0   0	        12.108.127.138	United States	208437130	AS7018 AT&T Services, Inc.	            38	        -97
+        1   1	        12.46.129.15	United States	204374287	AS7018 AT&T Services, Inc.	            38.0464	    -122.23
+        2   2	        122.1.115.91	Japan	        2046915419	AS4713 NTT Communications Corporation	35.685	    139.7514
+            ..  ..
     """
     data_file = open(file, 'r', encoding='utf-8', errors='replace')
     indices = data_file.readline().strip().split('\t')
@@ -74,17 +94,21 @@ def dataframe_fromtxt(file):
 
 class Wsdream:
     """
-    Singleton class contains an instance of the WS-DREAM dataset, with the different tables i.e. usersList, servicesList, responseTimeMatrix, throughputMatrix.
-    To simplify the interaction with the dataset.
-    
-    Attributes:
-    usersList (DataFrame) contains information on 339 service users. with the indices: User ID, IP Address, Country, Continent, AS, Latitude, Longitude, Region, City.
-    servicesList (DataFrame) contains information on the 5,825 Web services. with the indices: Service ID, WSDL Address, Service Provider, IP Address, Country, Continent, AS, Latitude, Longitude, Region, City,
-    responseTimeMatrix (ndarray) 339 * 5825 user-item matrix of response-time.
-    throughputMatrix (ndarray) 339 * 5825 user-item matrix for throughput.
+    The Wsdream class is a singleton class that contains an instance of the WS-DREAM dataset, 
+    with the different tables i.e. usersList, servicesList, responseTimeMatrix, throughputMatrix. 
+    This class is designed to simplify the interaction with the dataset.
 
+    Attributes:
+
+    usersList (pandas.DataFrame): contains information on 339 service users, 
+    including User ID, IP Address, Country, Continent, AS, Latitude, Longitude, Region, City.
+    servicesList (pandas.DataFrame): contains information on the 5,825 Web services, 
+    including Service ID, WSDL Address, Service Provider, IP Address, Country, Continent, AS, Latitude, Longitude, Region, City.
+    responseTimeMatrix (numpy.ndarray): 339 x 5825 user-item matrix of response-time.
+    throughputMatrix (numpy.ndarray): 339 x 5825 user-item matrix for throughput.
     Methods:
-    save_lists_tocsv (None) saves the usersList, and servicesList DataFrames into a CSV file when needed.
+
+    save_lists_tocsv(): saves the usersList and servicesList DataFrames into a CSV file when needed.
     """
     # TODO create a final static url var interactions_full_df
     __USERS_LIST_FILE_NAME="userlist.txt"
