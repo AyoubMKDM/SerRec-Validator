@@ -66,44 +66,48 @@ class WsdreamReader:
     __instance = None
 
     # TODO this verification is slow and computationaly expensive check it or add a way to skip later
-    def __new__(cls, dir=None, url="https://zenodo.org/record/1133476/files/wsdream_dataset1.zip?download=1"):
-        # TODO lose the ifs for verifying the exictance of the files on the system
+    def __new__(cls, dir=None):
         if (cls.__instance is None):
             print('Creating the dataset object ...')
-            cls.__dir = dir
+            cls.__dir = ""
             full_path = os.getcwd()
-            # print(full_path)
-            if dir is not None:
+            if dir is not None or dir == "":
+                cls.__dir = dir
                 full_path = os.path.join(full_path,cls.__dir)
-                # print(full_path)
             # Check if the data in the specified directory exists
             if os.path.exists(full_path):
                 ls = os.listdir(full_path)
-                # print(ls)
                 # If the folder exist check if all the files exist
                 if (cls.__USERS_LIST_FILE_NAME not in ls) or (cls.__SERVICES_LIST_FILE_NAME not in ls) \
                     or (cls.__RESPONSE_TIME_MATRIX_FILE_NAME not in ls) or (cls.__THROUGHPUT_MATRIX_FILE_NAME not in ls):
-                        dataset_downloader(url=url,dir=cls.__dir)
+                        # raise Exception Missing files from the dataset file you are reffering to
+                        # Try using "WsdreamReader(download_wsdream_dataset1.dataset_downloader())"
+                        # Delete instance
+                        pass
             else:
-                dataset_downloader(url=url, dir=dir)
+                # raise Exception Missing files from the dataset file you are reffering to
+                # Try using "WsdreamReader(download_wsdream_dataset1.dataset_downloader())"
+                # Delete instance
+                pass
+                
             # Initialize the class atributes 
-            if cls.__dir is None:
-                cls.usersList = dataframe_fromtxt(file=cls.__USERS_LIST_FILE_NAME)
-                cls.servicesList = dataframe_fromtxt(file=cls.__SERVICES_LIST_FILE_NAME)
-                cls.responseTimeMatrix = np.loadtxt(cls.__RESPONSE_TIME_MATRIX_FILE_NAME)
-                cls.throughputMatrix = np.loadtxt(cls.__THROUGHPUT_MATRIX_FILE_NAME)
-            else:
-                cls.usersList = dataframe_fromtxt(file=os.path.join(cls.__dir, cls.__USERS_LIST_FILE_NAME))
-                cls.servicesList = dataframe_fromtxt(file=os.path.join(cls.__dir, cls.__SERVICES_LIST_FILE_NAME))
-                cls.responseTimeMatrix = np.loadtxt(os.path.join(cls.__dir, cls.__RESPONSE_TIME_MATRIX_FILE_NAME))
-                cls.throughputMatrix = np.loadtxt(os.path.join(cls.__dir, cls.__THROUGHPUT_MATRIX_FILE_NAME))  
-                cls.servicesList['IP No.'].replace("0",value=None,inplace=True) 
+            cls.files_reader(cls.__dir)
             cls.df_responseTime = cls._df_from_matrix(cls, cls.responseTimeMatrix)
             cls.df_throughput = cls._df_from_matrix(cls, cls.throughputMatrix)
             # Creating the class
             cls.__instance = super(WsdreamReader, cls).__new__(cls)
             print("\t\t** DONE ** \n The dataset is accessible")
         return cls.__instance 
+
+    @classmethod
+    def files_reader(cls, dir=""):
+        cls.usersList = dataframe_fromtxt(file=os.path.join(dir, cls.__USERS_LIST_FILE_NAME))
+        cls.servicesList = dataframe_fromtxt(file=os.path.join(dir, cls.__SERVICES_LIST_FILE_NAME))
+        cls.responseTimeMatrix = np.loadtxt(os.path.join(dir, cls.__RESPONSE_TIME_MATRIX_FILE_NAME))
+        cls.throughputMatrix = np.loadtxt(os.path.join(dir, cls.__THROUGHPUT_MATRIX_FILE_NAME))  
+        cls.servicesList['IP No.'].replace("0",value=None,inplace=True) 
+
+
 
     # TODO add normalisation attribute
     def _df_from_matrix(self, matrix):

@@ -8,7 +8,7 @@ from wsdream_helper.wsdream_utility import WsdreamDataset
 from wsdream_helper.Normalization import *
 
 # dataset = wsdream_utility.Wsdream()
-dataset = WsdreamDataset(wsdream_utility.WsdreamReader(), NormalizationZScore)
+dataset = WsdreamDataset(wsdream_utility.WsdreamReader(dir = "work-dir"), NormalizationZScore)
 
 print("Loading response time data ...")
 data = dataset.get_responseTime(density=5)
