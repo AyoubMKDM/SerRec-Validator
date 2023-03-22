@@ -85,15 +85,3 @@ class DatasetFactory(ABC):
     @abstractmethod
     def get_services(self) -> pd.DataFrame:
         pass
-
-from surprise import Trainset
-from dataclasses import dataclass
-
-@dataclass
-class Sets:
-    full_trainSet: Trainset
-    trainSet_for_accuracy: Trainset
-    testSet_for_accuracy: list
-    trainSet_for_hits: Trainset
-    testSet_for_hits: list
-    anti_testSet_for_hits: list

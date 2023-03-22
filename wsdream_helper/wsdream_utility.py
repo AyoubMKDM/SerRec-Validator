@@ -97,7 +97,9 @@ class WsdreamReader:
     def _files_checker(cls):
         full_path = os.path.join(os.getcwd(),cls.__dir)
         # Check if the data in the specified directory exists
-        if os.path.exists(full_path):
+        if not os.path.exists(full_path):
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), full_path)
+        else:
             ls = os.listdir(full_path)
             # If the folder exist check if all the files exist
             if (cls.__USERS_LIST_FILE_NAME not in ls):
@@ -108,8 +110,7 @@ class WsdreamReader:
                 raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), os.path.join(full_path, cls.__RESPONSE_TIME_MATRIX_FILE_NAME))
             elif (cls.__THROUGHPUT_MATRIX_FILE_NAME not in ls):
                 raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), os.path.join(full_path, cls.__THROUGHPUT_MATRIX_FILE_NAME))
-        else:
-            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), full_path)
+            
 
 
 
