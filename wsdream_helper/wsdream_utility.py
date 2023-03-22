@@ -6,6 +6,7 @@ from surprise import Reader
 from .utility import DatasetFactory,NormalizationStrategy
 from .Normalization import NormalizationBasic
 from .download_wsdream_dataset1 import dataset_downloader
+import errno
 
 def dataframe_fromtxt(file):
     """
@@ -61,7 +62,6 @@ class WsdreamReader:
     __SERVICES_LIST_FILE_NAME="wslist.txt"
     __RESPONSE_TIME_MATRIX_FILE_NAME = "rtMatrix.txt"
     __THROUGHPUT_MATRIX_FILE_NAME = "tpMatrix.txt"
-    __READER = Reader()
     __dir = None
     __instance = None
 
@@ -70,28 +70,14 @@ class WsdreamReader:
         if (cls.__instance is None):
             print('Creating the dataset object ...')
             cls.__dir = ""
-            full_path = os.getcwd()
-            if dir is not None or dir == "":
+            if dir is not None:
                 cls.__dir = dir
-                full_path = os.path.join(full_path,cls.__dir)
-            # Check if the data in the specified directory exists
-            if os.path.exists(full_path):
-                ls = os.listdir(full_path)
-                # If the folder exist check if all the files exist
-                if (cls.__USERS_LIST_FILE_NAME not in ls) or (cls.__SERVICES_LIST_FILE_NAME not in ls) \
-                    or (cls.__RESPONSE_TIME_MATRIX_FILE_NAME not in ls) or (cls.__THROUGHPUT_MATRIX_FILE_NAME not in ls):
-                        # raise Exception Missing files from the dataset file you are reffering to
-                        # Try using "WsdreamReader(download_wsdream_dataset1.dataset_downloader())"
-                        # Delete instance
-                        pass
-            else:
-                # raise Exception Missing files from the dataset file you are reffering to
-                # Try using "WsdreamReader(download_wsdream_dataset1.dataset_downloader())"
-                # Delete instance
-                pass
-                
+            print('Checking the availability of all files in the dataset ...')
+            cls._files_checker()
+
             # Initialize the class atributes 
-            cls.files_reader(cls.__dir)
+            print('Reading files from disk ...')
+            cls._files_reader()
             cls.df_responseTime = cls._df_from_matrix(cls, cls.responseTimeMatrix)
             cls.df_throughput = cls._df_from_matrix(cls, cls.throughputMatrix)
             # Creating the class
@@ -100,12 +86,30 @@ class WsdreamReader:
         return cls.__instance 
 
     @classmethod
-    def files_reader(cls, dir=""):
-        cls.usersList = dataframe_fromtxt(file=os.path.join(dir, cls.__USERS_LIST_FILE_NAME))
-        cls.servicesList = dataframe_fromtxt(file=os.path.join(dir, cls.__SERVICES_LIST_FILE_NAME))
-        cls.responseTimeMatrix = np.loadtxt(os.path.join(dir, cls.__RESPONSE_TIME_MATRIX_FILE_NAME))
-        cls.throughputMatrix = np.loadtxt(os.path.join(dir, cls.__THROUGHPUT_MATRIX_FILE_NAME))  
+    def _files_reader(cls):
+        cls.usersList = dataframe_fromtxt(file=os.path.join(cls.__dir, cls.__USERS_LIST_FILE_NAME))
+        cls.servicesList = dataframe_fromtxt(file=os.path.join(cls.__dir, cls.__SERVICES_LIST_FILE_NAME))
+        cls.responseTimeMatrix = np.loadtxt(os.path.join(cls.__dir, cls.__RESPONSE_TIME_MATRIX_FILE_NAME))
+        cls.throughputMatrix = np.loadtxt(os.path.join(cls.__dir, cls.__THROUGHPUT_MATRIX_FILE_NAME))  
         cls.servicesList['IP No.'].replace("0",value=None,inplace=True) 
+    
+    @classmethod 
+    def _files_checker(cls):
+        full_path = os.path.join(os.getcwd(),cls.__dir)
+        # Check if the data in the specified directory exists
+        if os.path.exists(full_path):
+            ls = os.listdir(full_path)
+            # If the folder exist check if all the files exist
+            if (cls.__USERS_LIST_FILE_NAME not in ls):
+                raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), os.path.join(full_path, cls.__USERS_LIST_FILE_NAME))
+            elif (cls.__SERVICES_LIST_FILE_NAME not in ls):
+                raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), os.path.join(full_path, cls.__SERVICES_LIST_FILE_NAME))
+            elif (cls.__RESPONSE_TIME_MATRIX_FILE_NAME not in ls):
+                raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), os.path.join(full_path, cls.__RESPONSE_TIME_MATRIX_FILE_NAME))
+            elif (cls.__THROUGHPUT_MATRIX_FILE_NAME not in ls):
+                raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), os.path.join(full_path, cls.__THROUGHPUT_MATRIX_FILE_NAME))
+        else:
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), full_path)
 
 
 

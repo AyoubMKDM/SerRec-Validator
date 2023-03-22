@@ -6,9 +6,10 @@ from wsdream_helper.utility import DataSplitter
 from wsdream_helper.ModelEvaluator import ModelEvaluator
 from wsdream_helper.wsdream_utility import WsdreamDataset
 from wsdream_helper.Normalization import *
+from wsdream_helper import download_wsdream_dataset1
 
 # dataset = wsdream_utility.Wsdream()
-dataset = WsdreamDataset(wsdream_utility.WsdreamReader(dir = "work-dir"), NormalizationZScore)
+dataset = WsdreamDataset(wsdream_utility.WsdreamReader(dir=""))
 
 print("Loading response time data ...")
 data = dataset.get_responseTime(density=5)
