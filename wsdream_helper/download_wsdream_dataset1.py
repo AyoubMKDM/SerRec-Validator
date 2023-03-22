@@ -33,7 +33,7 @@ def check_command_line_arguments(in_arg):
     # TODO impliment this
     pass
 
-def dataset_downloader(dir=None, url="https://zenodo.org/record/1133476/files/wsdream_dataset1.zip?download=1"):
+def dataset_downloader(dir: str ='wsdream_dataset1', url : str ="https://zenodo.org/record/1133476/files/wsdream_dataset1.zip?download=1") -> str:
     """
     Retrieve and download the WS-DREAM dataset as a zip file from the specified URL, 
     then extract the content from the zip file and delete the latter. This function 
@@ -41,7 +41,7 @@ def dataset_downloader(dir=None, url="https://zenodo.org/record/1133476/files/ws
     specified directory or the current directory if no directory is specified.
 
     Parameters:
-    dir (str): The directory where the dataset will be stored. Default is the current directory.
+    dir (str): The directory where the dataset will be stored. Default is "./wsdream_dataset1".
     url (str): The URL of the downloadable zip file. The URL can be modified to download the 
     WS-DREAM first dataset in case of a broken link or changing in the repository.
     The default is 'https://zenodo.org/record/1133476/files/wsdream_dataset1.zip?download=1'.
@@ -84,7 +84,7 @@ def dataset_downloader(dir=None, url="https://zenodo.org/record/1133476/files/ws
     os.remove(file_name)
     print('==============================================')
     print('Downloading data done!\n')
-    pass
+    return dir
 
 def main():
     in_args = get_input_args()
