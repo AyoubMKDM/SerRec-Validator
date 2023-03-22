@@ -5,12 +5,16 @@ from surprise import KNNBaseline
 from wsdream_helper.utility import DataSplitter
 from wsdream_helper.ModelEvaluator import ModelEvaluator
 from wsdream_helper.wsdream_utility import WsdreamDataset
+from wsdream_helper.Normalization import *
 
 # dataset = wsdream_utility.Wsdream()
-dataset = WsdreamDataset(wsdream_utility.WsdreamReader(),None)
+dataset = WsdreamDataset(wsdream_utility.WsdreamReader(), NormalizationZScore)
 
 print("Loading response time data ...")
 data = dataset.get_responseTime(density=5)
+
+print(f"min {data.df.min()} \nmax {data.df.max()} \ndata.df")
+
 splits = DataSplitter(dataset, 5, 6)
 
 

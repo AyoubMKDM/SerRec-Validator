@@ -1,49 +1,15 @@
 from surprise.model_selection import train_test_split,LeaveOneOut
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractstaticmethod
 import pandas as pd
 from surprise import Dataset
 
-class Normalization:
-    @staticmethod
-    def scaling_to_range(data_df):
-        min = data_df['Rating'].min()
-        max = data_df['Rating'].max()
-        data_df['Rating'] = 1 - (data_df['Rating'] - min) / (max - min)
-        return data_df
-
-    @staticmethod
-    def z_score(data_df):
-        mean = data_df['Rating'].mean()
-        std = data_df['Rating'].std()
-        # min = (data_df['Rating'].min() - mean)/std
-        max = (data_df['Rating'].max() - mean)/std
-        data_df['Rating'] = max - (data_df['Rating'] - mean)/std
-        return data_df
-
-    @staticmethod
-    def clipping(data_df):
+class NormalizationStrategy(ABC):
+    @abstractstaticmethod
+    def normlize(data_df: pd.DataFrame) -> pd.DataFrame:
         pass
 
-    @staticmethod
-    def log_scaling(data_df):
-        pass
-
-class RevertNormalization:
-    # TODO implement static methods for reverting the normalization on recommendation results
-    @staticmethod
-    def scaling_to_range(data_df):
-        pass
-
-    @staticmethod
-    def z_score(data_df):
-        pass
-
-    @staticmethod
-    def clipping(data_df):
-        pass
-
-    @staticmethod
-    def log_scaling(data_df):
+    @abstractstaticmethod
+    def revert_normalization(data_df: pd.DataFrame) -> pd.DataFrame:
         pass
 
 

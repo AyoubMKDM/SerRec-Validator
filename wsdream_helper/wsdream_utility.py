@@ -6,7 +6,8 @@ import pandas as pd
 import numpy as np
 from surprise import Dataset
 from surprise import Reader
-from .utility import Normalization, DatasetFactory
+from .utility import DatasetFactory,NormalizationStrategy
+from .Normalization import NormalizationBasic
 
 
 
@@ -187,9 +188,11 @@ class WsdreamReader:
         pass
 
 class WsdreamDataset(DatasetFactory):
-    def __init__(self, wsdream, normalization_strategy) -> None:
+    def __init__(self, wsdream, normalization_strategy: NormalizationStrategy = NormalizationBasic) -> None:
         self.wsdream = wsdream
         self.normalization_strategy = normalization_strategy
+        self._responseTime =  self.normalization_strategy.normalize(self.wsdream.df_responseTime)
+        self._throughput = self.normalization_strategy.normalize(self.wsdream.df_throughput)
 
     def get_responseTime(self, density=100, random_state=6):
         """
@@ -200,14 +203,12 @@ class WsdreamDataset(DatasetFactory):
         """
         # TODO raise an exception
         frac = density/100
-        copy = self.wsdream.df_responseTime.sample(frac=frac, random_state=random_state, ignore_index=True)
+        copy = pd.DataFrame.sample(self._responseTime, frac=frac, random_state=random_state, ignore_index=True)
         # Converting Dataframe to surprise Dataset object
-        min = int(self.wsdream.df_responseTime.Rating.min()) - 1
-        max = int(self.wsdream.df_responseTime.Rating.max()) + 1
+        min = int(self._responseTime.Rating.min()) - 1
+        max = int(self._responseTime.Rating.max()) + 1
         reader = Reader(rating_scale=(min, max))
         data = Dataset.load_from_df(copy, reader)
-        # #Data Normalization get_surprise_dataset
-        # pd_list = normalization(pd_list)
         return data
         
     def get_throughput(self, density=100, random_state=6):
@@ -219,14 +220,12 @@ class WsdreamDataset(DatasetFactory):
         """
         # TODO raise an exception
         frac = density/100
-        copy = self.wsdream.df_throughput.sample(frac=frac, random_state=random_state, ignore_index=True)
+        copy = pd.DataFrame.sample(self._throughput, frac=frac, random_state=random_state, ignore_index=True)
         # Converting Dataframe to surprise Dataset object
-        min = int(self.wsdream.df_throughput.Rating.min()) - 1
-        max = int(self.wsdream.df_throughput.Rating.max()) + 1
+        min = int(self._throughput.Rating.min()) - 1
+        max = int(self._throughput.Rating.max()) + 1
         reader = Reader(rating_scale=(min, max))
         data = Dataset.load_from_df(copy, reader)
-        # #Data Normalization get_surprise_dataset
-        # pd_list = normalization(pd_list)
         return data
     
     def get_users(self) -> pd.DataFrame:
