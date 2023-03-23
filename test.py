@@ -9,25 +9,26 @@ from wsdream_helper.Normalization import *
 from wsdream_helper import download_wsdream_dataset1
 
 # dataset = wsdream_utility.Wsdream()
-dataset = WsdreamDataset(wsdream_utility.WsdreamReader(dir=""))
+dataset = WsdreamDataset(wsdream_utility.WsdreamReader("work-dir"))
 
 print("Loading response time data ...")
 data = dataset.get_responseTime(density=5)
 
-print(f"min {data.df.min()} \nmax {data.df.max()} \ndata.df")
-
 splits = DataSplitter(dataset, 5, 6)
+# splits = DataSplitter(dataset, 5, 6).response_time_splits
 
 
 print("\nComputing item similarities so we can measure diversity later...")
 # fullTrainSet = data.build_full_trainset()
-fullTrainSet = splits.trainset_from_full_data['response_time']
+# fullTrainSet = splits.trainset_from_full_data['response_time']
+fullTrainSet = splits.response_time_splits.full_trainSet
 sim_options = {'name': 'pearson_baseline', 'user_based': False}
 simsAlgo = KNNBaseline(sim_options=sim_options)
 simsAlgo.fit(fullTrainSet)
 
 print("\nBuilding recommendation model...")
-trainSet, testSet = splits.splitset_for_accuracy['response_time']
+# trainSet, testSet = splits.splitset_for_accuracy['response_time']
+trainSet, testSet = splits.response_time_splits.accuracy_splits
 
 algo = SVD(random_state=10)
 algo.fit(trainSet)
@@ -41,7 +42,8 @@ print("MAE: ", EvaluationMetrics.MAE(predictions))
 
 print("\nEvaluating top-10 recommendations...")
 
-trainSet, testSet = splits.splitset_for_hit_rate['response_time']
+# trainSet, testSet = splits.splitset_for_hit_rate['response_time']
+trainSet, testSet = splits.response_time_splits.hit_splits
 
 # Train model without left-out ratings
 algo.fit(trainSet)
@@ -52,7 +54,8 @@ leftOutPredictions = algo.test(testSet)
 
 # Build predictions for all ratings not in the training set
 print("Predict all missing ratings...")
-allPredictions = algo.test(splits.anti_testset_for_hit_rate["response_time"])
+# allPredictions = algo.test(splits.anti_testset_for_hit_rate["response_time"])
+allPredictions = algo.test(splits.response_time_splits.anti_testSet_for_hits)
 
 # Compute top 10 recs for each user
 print("Compute top 10 recs per user...")
@@ -74,7 +77,8 @@ print("\nARHR (Average Reciprocal Hit Rank): ", EvaluationMetrics.average_recipr
 print("\nComputing complete recommendations, no hold outs...")
 algo.fit(fullTrainSet)
 # bigTestSet = fullTrainSet.build_anti_testset()
-allPredictions = algo.test(splits.anti_testset_from_full_data['response_time'])
+# allPredictions = algo.test(splits.anti_testset_from_full_data['response_time'])
+allPredictions = algo.test(splits.response_time_splits.anti_testset_from_full_data)
 topNPredicted = EvaluationMetrics.get_top_n(allPredictions, n=10)
 
 # Print user coverage with a minimum predicted rating of 4.0:
@@ -90,5 +94,5 @@ print("\nNovelty (average popularity rank): ", EvaluationMetrics.novelty(topNPre
 splits = DataSplitter(dataset, density=5)
 algo = SVD(random_state=10)
 model_evaluator = ModelEvaluator() 
-model_evaluator.evaluate(algo, splits)
+# model_evaluator.evaluate(algo, splits)
 

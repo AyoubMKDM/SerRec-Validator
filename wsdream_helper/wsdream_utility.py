@@ -99,6 +99,7 @@ class WsdreamReader:
         # Check if the data in the specified directory exists
         if not os.path.exists(full_path):
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), full_path)
+        # TODO if the dir == "" the error is different
         else:
             ls = os.listdir(full_path)
             # If the folder exist check if all the files exist
