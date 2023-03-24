@@ -36,7 +36,7 @@ class WsdreamReader:
     __dir = None
     __instance = None
 
-    def __new__(cls, dir=None):
+    def __new__(cls, dir : str =None):
         if (cls.__instance is None):
             print('Creating the dataset object ...')
             cls.__dir = ""
@@ -48,8 +48,8 @@ class WsdreamReader:
             # Initialize the class atributes 
             print('Reading files from disk ...')
             cls._files_reader()
-            cls.df_responseTime = cls._df_from_matrix(cls, cls.responseTimeMatrix)
-            cls.df_throughput = cls._df_from_matrix(cls, cls.throughputMatrix)
+            cls.df_responseTime = cls._df_from_matrix(cls, cls.response_time_matrix)
+            cls.df_throughput = cls._df_from_matrix(cls, cls.throughput_matrix)
             # Creating the class
             cls.__instance = super(WsdreamReader, cls).__new__(cls)
             print("\t\t** DONE ** \n The dataset is accessible")
@@ -57,11 +57,11 @@ class WsdreamReader:
 
     @classmethod
     def _files_reader(cls):
-        cls.usersList = cls.dataframe_fromtxt(file=os.path.join(cls.__dir, cls.__USERS_LIST_FILE_NAME))
-        cls.servicesList = cls.dataframe_fromtxt(file=os.path.join(cls.__dir, cls.__SERVICES_LIST_FILE_NAME))
-        cls.responseTimeMatrix = np.loadtxt(os.path.join(cls.__dir, cls.__RESPONSE_TIME_MATRIX_FILE_NAME))
-        cls.throughputMatrix = np.loadtxt(os.path.join(cls.__dir, cls.__THROUGHPUT_MATRIX_FILE_NAME))  
-        cls.servicesList['IP No.'].replace("0",value=None,inplace=True) 
+        cls.users_df = cls.dataframe_fromtxt(path=os.path.join(cls.__dir, cls.__USERS_LIST_FILE_NAME))
+        cls.services_df = cls.dataframe_fromtxt(path=os.path.join(cls.__dir, cls.__SERVICES_LIST_FILE_NAME))
+        cls.response_time_matrix = np.loadtxt(os.path.join(cls.__dir, cls.__RESPONSE_TIME_MATRIX_FILE_NAME))
+        cls.throughput_matrix = np.loadtxt(os.path.join(cls.__dir, cls.__THROUGHPUT_MATRIX_FILE_NAME))  
+        cls.services_df['IP No.'].replace("0",value=None,inplace=True) 
     
     @classmethod 
     def _files_checker(cls):
@@ -102,10 +102,11 @@ class WsdreamReader:
         Return:
             None
         """
-        self.usersList.to_csv("usersList.csv")
-        self.servicesList.to_csv("servicesList.csv")
+        self.users_df.to_csv("usersList.csv")
+        self.services_df.to_csv("servicesList.csv")
 
-    def dataframe_fromtxt(file : str) -> pd.DataFrame:
+    @staticmethod
+    def dataframe_fromtxt(path : str) -> pd.DataFrame:
         """
         Reads a .txt file containing a list of users or services and returns a pandas DataFrame object.
 
@@ -123,7 +124,7 @@ class WsdreamReader:
             2   2	        122.1.115.91	Japan	        2046915419	AS4713 NTT Communications Corporation	35.685	    139.7514
                 ..  ..
         """
-        with open(file, 'r', encoding='utf-8', errors='replace') as data_file:
+        with open(path, 'r', encoding='utf-8', errors='replace') as data_file:
             indices = data_file.readline().strip().split('\t')
             indices = [index.strip('[]') for index in indices] 
             # Creating the DataFrame of users/services with the title line first
