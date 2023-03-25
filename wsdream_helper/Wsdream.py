@@ -68,19 +68,26 @@ class WsdreamReader:
         full_path = os.path.join(os.getcwd(),cls.__dir)
         # Check if the data in the specified directory exists
         if not os.path.exists(full_path):
-            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), full_path)
-        # TODO if the dir == "" the error is different
+            cls._raise_FileNotFoundError(full_path)
         else:
             ls = os.listdir(full_path)
             # If the folder exist check if all the files exist
             if (cls.__USERS_LIST_FILE_NAME not in ls):
-                raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), os.path.join(full_path, cls.__USERS_LIST_FILE_NAME))
+                cls._raise_FileNotFoundError(os.path.join(full_path, cls.__USERS_LIST_FILE_NAME))
             elif (cls.__SERVICES_LIST_FILE_NAME not in ls):
-                raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), os.path.join(full_path, cls.__SERVICES_LIST_FILE_NAME))
+                cls._raise_FileNotFoundError(os.path.join(full_path, cls.__SERVICES_LIST_FILE_NAME))
             elif (cls.__RESPONSE_TIME_MATRIX_FILE_NAME not in ls):
-                raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), os.path.join(full_path, cls.__RESPONSE_TIME_MATRIX_FILE_NAME))
+                cls._raise_FileNotFoundError(os.path.join(full_path, cls.__RESPONSE_TIME_MATRIX_FILE_NAME))
             elif (cls.__THROUGHPUT_MATRIX_FILE_NAME not in ls):
-                raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), os.path.join(full_path, cls.__THROUGHPUT_MATRIX_FILE_NAME))
+                cls._raise_FileNotFoundError(os.path.join(full_path, cls.__THROUGHPUT_MATRIX_FILE_NAME))
+
+    @classmethod
+    def _raise_FileNotFoundError(cls, dir:str):
+        print('')
+        raise FileNotFoundError(errno.ENOENT, 
+                                f"File not found \
+                                \nYou need to download the dataset first: \n\t>>> path = WsdreamDataset1Downloader.download(\'<The folder where to save the dataset>\')\
+                                \n{os.strerror(errno.ENOENT)}", dir)
             
 
     def _df_from_matrix(self, matrix):
@@ -150,7 +157,8 @@ class WsdreamDataset(DatasetFactory):
             density - int, optional for the density of the data to work with, by default it's 100.
             random_state - int, optional for the data randomization, used for randomizing lower density data and obtaining consisting results.
         """
-        # TODO raise an exception
+        if density <= 0 or density > 100:
+            raise ValueError("Density must be a percentage value between 1 and 100.")
         frac = density/100
         copy = pd.DataFrame.sample(self._responseTime, frac=frac, random_state=random_state, ignore_index=True)
         # Converting Dataframe to surprise Dataset object
@@ -167,7 +175,8 @@ class WsdreamDataset(DatasetFactory):
             density - int, optional for the density of the data to work with, by default it's 100.
             random_state - int, optional for the data randomization, used for randomizing lower density data and obtaining consisting results.
         """
-        # TODO raise an exception
+        if density <= 0 or density > 100:
+            raise ValueError("Density must be a percentage value between 1 and 100.")
         frac = density/100
         copy = pd.DataFrame.sample(self._throughput, frac=frac, random_state=random_state, ignore_index=True)
         # Converting Dataframe to surprise Dataset object

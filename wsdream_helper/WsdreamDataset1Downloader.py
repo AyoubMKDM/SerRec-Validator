@@ -2,7 +2,6 @@ import urllib.request as urlopener
 import shutil
 from zipfile import ZipFile
 import os
-# from .get_input_args import get_input_args
 import argparse
 
 def get_input_args():
@@ -33,7 +32,7 @@ def check_command_line_arguments(in_arg):
     # TODO impliment this
     pass
 
-def dataset_downloader(dir: str ='wsdream_dataset1', url : str ="https://zenodo.org/record/1133476/files/wsdream_dataset1.zip?download=1") -> str:
+def download(dir: str ='wsdream_dataset1', url : str ="https://zenodo.org/record/1133476/files/wsdream_dataset1.zip?download=1") -> str:
     """
     Retrieve and download the WS-DREAM dataset as a zip file from the specified URL, 
     then extract the content from the zip file and delete the latter. This function 
@@ -52,7 +51,7 @@ def dataset_downloader(dir: str ='wsdream_dataset1', url : str ="https://zenodo.
     Example:
     >>> dataset_downloader('my_data_folder')
     """
-    # TODO make this return the file name
+
     # TODO Handle http and url exceptions .. Use https://docs.python.org/3/library/urllib.error.html#urllib.error.URLError 
     file_name = url.split('/')[-1]
     page = urlopener.urlopen(url)
@@ -88,7 +87,7 @@ def dataset_downloader(dir: str ='wsdream_dataset1', url : str ="https://zenodo.
 
 def main():
     in_args = get_input_args()
-    dataset_downloader(dir=in_args.dir,url=in_args.url)
+    download(dir=in_args.dir,url=in_args.url)
 
 if __name__ == "__main__":
     main()

@@ -1,1 +1,1 @@
-from .wsdream_utility import WsdreamReader
+from .Wsdream import WsdreamReader
