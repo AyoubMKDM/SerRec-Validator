@@ -26,8 +26,6 @@ class WsdreamReader:
     Parameters:
     dir : str
         The directory where the dataset files are located. If not provided, the current working directory is used.
-
-    Raises: 
     """
     __USERS_LIST_FILE_NAME="userlist.txt"
     __SERVICES_LIST_FILE_NAME="wslist.txt"
@@ -187,8 +185,23 @@ class WsdreamDataset(DatasetFactory):
         return data
     
     def get_users(self) -> pd.DataFrame:
+        """
+        Returns a pandas DataFrame containing the list of users in the Wsdream dataset.
+
+        Returns:
+            A pandas DataFrame with columns 'User ID', 'IP Address, 'Country', 'IP No.', 'AS',
+                'Latitude', and 'Longitude' containing information about the users in the Wsdream dataset1.
+        """
         return self.wsdream.usersList
     
     def get_services(self) -> pd.DataFrame:
+        """
+        Returns a pandas DataFrame containing the list of services in the Wsdream dataset.
+
+        Returns:
+            A pandas DataFrame with columns 'Service ID', 'WSDL Address', 'Service Provider', 'IP Address', 
+                'Country', 'IP No.', 'AS', 'Latitude', 'Longitude' containing information about the services in the Wsdream dataset1.
+        """
+
         return self.wsdream.servicesList
     
