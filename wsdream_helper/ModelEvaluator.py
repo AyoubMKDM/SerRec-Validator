@@ -64,8 +64,8 @@ class ModelEvaluator:
     @compare.register(AlgoBase)
     def compare(self, algos, data: DataSplitter, metrics:list[str], verbose:bool=True) -> dict:
         classicAlgos = [UPICC, PMF, NMF, PMF, NTF, algos]
-        self.compare(algos, data, metrics, verbose)
-        pass
+        return self.compare(algos, data, metrics, verbose)
+        
 
     #TODO implement the display_results method
     def display_results(results:dict) -> None:
