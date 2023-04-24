@@ -6,16 +6,72 @@ from collections import defaultdict
 import itertools
 from .utility import getPopularityRanks
 
-def MAE(predictions, verbose=True):
+def MAE(predictions, verbose=False):
+    """
+    This function calculates the mean absolute error from a list of predictions.
+    Paramteres:
+        predictions - list[surprise.prediction_algorithms.predictions.Prediction],
+            A list of predictions, as returned by the test() method. containing the user id, service id, rating, estimation, and details 
+        verbose - bool, If True, will print computed value. Default is False.
+
+    Returns:
+        The Mean Absolute Error of predictions.
+
+    Raises:
+        ValueError - When predictions is empty.        
+    """
     return accuracy.mae(predictions, verbose)
 
-def RMSE(predictions, verbose=True):
+def RMSE(predictions, verbose=False):
+    """
+    This function calculates the root mean square error from a list of predictions.
+    Paramteres:
+        predictions - list[surprise.prediction_algorithms.predictions.Prediction],
+            A list of predictions, as returned by the test() method. containing the user id, service id, rating, estimation, and details 
+        verbose - bool, If True, will print computed value. Default is False.
+
+    Returns:
+        The Root Mean Square Error of predictions.
+        
+    Raises:
+        ValueError - When predictions is empty.    
+    """
     return accuracy.rmse(predictions, verbose)
 
-def MSE(predictions, verbose=True):
+def MSE(predictions, verbose=False):
+    """
+    This function calculates the mean square error from a list of predictions.
+    Paramteres:
+        predictions - list[surprise.prediction_algorithms.predictions.Prediction],
+            A list of predictions, as returned by the test() method. containing the user id, service id, rating, estimation, and details 
+        verbose - bool, If True, will print computed value. Default is False.
+
+    Returns:
+        The Mean Square Error of predictions.
+
+    Raises:
+        ValueError - When predictions is empty.    
+    """
     return accuracy.mse(predictions, verbose)
 
+# TODO the rest of the funcitons should also raise a value error if the predictions list are empty
+
 def get_top_n(predictions, n=10, minimumRating=0.0, verbose=False):
+    """
+    This function takes a set of predictions and returns a dictionary of top-N recommendations for each user in the dataset.
+    Paramteres:
+        predictions - list[surprise.prediction_algorithms.predictions.Prediction],
+            A list of predictions, as returned by the test() method. containing the user id, service id, rating, estimation, and details 
+        n - int, number of the recommendation to return.
+        minimumRating - float, the minimum rating to include in the recommendation.
+        verbose - bool, If True, will print computed value. Default is False.
+    
+    Returns:
+        defaultdict (int: list), containing the service id and the predicted rating
+
+    Raises: 
+        ValueError - When predictions is empty.
+    """
     topN = defaultdict(list)
     for userID, serviceID, actualRating, estimatedRating, _ in predictions:
         if (estimatedRating >= minimumRating):
@@ -31,6 +87,22 @@ def get_top_n(predictions, n=10, minimumRating=0.0, verbose=False):
     return topN
 
 def hit_rate(top_n_predicted, left_out_predictions, verbose=True):
+    """
+    This function computes the hit rate of a set of top-N recommendations for each user 
+    by comparing it to the left-out predictions (The predictions on items that were not interected with by the user).
+    Parameteres:
+        top_n_predicted - list[surprise.prediction_algorithms.predictions.Prediction],
+            A list of predictions, as returned by the test() method. containing the user id, service id, rating, estimation, and details 
+        left_out_predictions - list[surprise.prediction_algorithms.predictions.Prediction],
+            A list of predictions, as returned by the test() method. containing the user id, service id, rating, estimation, and details 
+        verbose - bool, If True, will print computed value. Default is False.
+
+    Returns:
+        float, for the number of hits over the total number of left-out predictions.
+        
+    Raises: 
+        ValueError - When predictions is empty.
+    """
     hits = 0
     total = 0
 
@@ -53,7 +125,23 @@ def hit_rate(top_n_predicted, left_out_predictions, verbose=True):
     # Compute overall precision
     return hits/total
 
-def cumulative_hit_rate(top_n_predicted, left_out_predictions, ratingCutoff=0, verbose=True):
+def cumulative_hit_rate(top_n_predicted, left_out_predictions, ratingCutoff=0.0, verbose=True):
+    """
+    function computes the cumulative hit rate of a set of top-N recommendations by considering only the recommendations that users rated higher than a given threshold.
+    Parameteres:
+        top_n_predicted - list[surprise.prediction_algorithms.predictions.Prediction],
+            A list of predictions, as returned by the test() method. containing the user id, service id, rating, estimation, and details 
+        left_out_predictions - list[surprise.prediction_algorithms.predictions.Prediction],
+            A list of predictions, as returned by the test() method. containing the user id, service id, rating, estimation, and details 
+        ratingCutoff - float for the threshold.
+        verbose - bool, If True, will print computed value. Default is False.
+
+    Returns:
+        float, for the number of hits over the total number of left-out predictions.
+        
+    Raises: 
+        ValueError - When predictions is empty.
+    """
     hits = 0
     total = 0
 
@@ -78,6 +166,22 @@ def cumulative_hit_rate(top_n_predicted, left_out_predictions, ratingCutoff=0, v
     return hits/total
 
 def rating_hit_rate(top_n_predicted, left_out_predictions, verbose=True):
+    """
+    TODO this needs to be modified
+    function computes the rating hit rate of a set of top-N recommendations by considering only the recommendations that users actually rated.
+    Parameteres:
+        top_n_predicted - list[surprise.prediction_algorithms.predictions.Prediction],
+            A list of predictions, as returned by the test() method. containing the user id, service id, rating, estimation, and details 
+        left_out_predictions - list[surprise.prediction_algorithms.predictions.Prediction],
+            A list of predictions, as returned by the test() method. containing the user id, service id, rating, estimation, and details 
+        verbose - bool, If True, will print computed value. Default is False.
+
+    Returns:
+        float, for the number of hits over the total number of left-out predictions.
+        
+    Raises: 
+        ValueError - When predictions is empty.
+    """
     hits = defaultdict(float)
     total = defaultdict(float)
     rHR_list = []
@@ -102,6 +206,22 @@ def rating_hit_rate(top_n_predicted, left_out_predictions, verbose=True):
     return rHR_list
 
 def average_reciprocal_hit_rank(top_n_predicted, left_out_predictions, verbose=True):
+    """
+    TODO this needs to be modified
+    function computes the average reciprocal hit rank of a set of top-N recommendations by considering the rank of the hit for each user. 
+    Parameteres:
+        top_n_predicted - list[surprise.prediction_algorithms.predictions.Prediction],
+            A list of predictions, as returned by the test() method. containing the user id, service id, rating, estimation, and details 
+        left_out_predictions - list[surprise.prediction_algorithms.predictions.Prediction],
+            A list of predictions, as returned by the test() method. containing the user id, service id, rating, estimation, and details 
+        verbose - bool, If True, will print computed value. Default is False.
+
+    Returns:
+        float, for the number of hits over the total number of left-out predictions.
+        
+    Raises: 
+        ValueError - When predictions is empty.
+    """
     summation = 0
     total = 0
     # For each left-out rating

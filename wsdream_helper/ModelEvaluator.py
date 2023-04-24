@@ -1,6 +1,11 @@
 from . import EvaluationMetrics
+from .utility import DataSplitter
+from surprise import AlgoBase
+from functools import singledispatch
 
+#TODO implement the verbose functionality on all the methods
 class ModelEvaluator:
+    #TODO move the metrics list from the constructor to the evaluate method
     def __init__(self, metrics=['RMSE','MAE', 'HR', 'ARHR', 'CHR', 'Coverage', 'Diversity', 'Novelty']):
         self.metrics = metrics
 
@@ -43,3 +48,25 @@ class ModelEvaluator:
                 evaluation_dict[metric] = EvaluationMetrics.cumulative_hit_rate(topNPredicted,predictions,verbose=False)
 
         return evaluation_dict
+    
+    @singledispatch
+    def compare(self, algos, data: DataSplitter, metrics:list[str], verbose:bool=True) -> dict:
+        #TODO write and detialed error message
+        raise NotImplementedError("ERROR")
+
+    @compare.register(list[AlgoBase])
+    def compare(self, algos, data: DataSplitter, metrics:list[str], verbose:bool=True) -> dict:
+        results = dict()
+        for model in algos:
+            results[model] = self.evaluate(algo=model, splits=data)
+        return results
+
+    @compare.register(AlgoBase)
+    def compare(self, algos, data: DataSplitter, metrics:list[str], verbose:bool=True) -> dict:
+        classicAlgos = [UPICC, PMF, NMF, PMF, NTF, algos]
+        self.compare(algos, data, metrics, verbose)
+        pass
+
+    #TODO implement the display_results method
+    def display_results(results:dict) -> None:
+        pass
