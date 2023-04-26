@@ -12,7 +12,7 @@ class ModelEvaluator:
     # TODO implement the verbose action
     def evaluate(self, algo, splits, verbose=False):
         evaluation_dict = dict()
-        trainSet, testSet = splits.splitset_for_accuracy['response_time']
+        trainSet, testSet = splits.accuracy_splits
         algo.fit(trainSet)
         predictions = algo.test(testSet)
         for metric in self.metrics:
@@ -32,8 +32,8 @@ class ModelEvaluator:
     # TODO implement the verbose action
     def hit_rate_evaluation(self, algo, splits, verbose=False):
         evaluation_dict = dict()
-        trainSet, testSet = splits.splitset_for_hit_rate['response_time']
-        bigTestSet = splits.anti_testset_for_hit_rate['response_time']
+        trainSet, testSet = splits.hit_splits
+        bigTestSet = splits.anti_testSet_for_hits
         algo.fit(trainSet)
         predictions = algo.test(testSet)
         allPredictions = algo.test(bigTestSet)
@@ -50,21 +50,40 @@ class ModelEvaluator:
         return evaluation_dict
     
     @singledispatch
-    def compare(self, algos, data: DataSplitter, metrics:list[str], verbose:bool=True) -> dict:
+    def compare(self, algos, data: DataSplitter, metrics:list[str]=['RMSE','MAE', 'HR', 'ARHR', 'CHR'], verbose:bool=True) -> dict:
         #TODO write and detialed error message
         raise NotImplementedError("ERROR")
 
-    @compare.register(list[AlgoBase])
-    def compare(self, algos, data: DataSplitter, metrics:list[str], verbose:bool=True) -> dict:
+    @compare.register(list)
+    def compare(self, algos, data: DataSplitter, metrics:list[str]=['RMSE','MAE', 'HR', 'ARHR', 'CHR'], verbose:bool=True) -> dict:
         results = dict()
         for model in algos:
-            results[model] = self.evaluate(algo=model, splits=data)
+            last_index = 0
+            model_name = self.__get_model_name(model)
+            if model_name in results.keys():
+                for key in results.keys():
+                    #Check if the model name already available if so add a number to the model name
+                    if key.find(model_name) > -1 :
+                        if key.find('_') >-1:
+                            if (last_index < int(key.split("_")[1])):
+                                last_index = int(key.split("_")[1])
+                model_name += "_" + str(last_index+1)
+                
+            results[model_name] = self.evaluate(algo=model, splits=data)
         return results
 
-    @compare.register(AlgoBase)
-    def compare(self, algos, data: DataSplitter, metrics:list[str], verbose:bool=True) -> dict:
-        classicAlgos = [UPICC, PMF, NMF, PMF, NTF, algos]
-        return self.compare(algos, data, metrics, verbose)
+    #TODO implement the next method
+    # @compare.register(AlgoBase)
+    # def compare(self, algos, data: DataSplitter, metrics:list[str]=['RMSE','MAE', 'HR', 'ARHR', 'CHR'], verbose:bool=True) -> dict:
+    #     # classicAlgos = [UIPCC, PMF, NMF, PMF, NTF, algos]
+    #     # return self.compare(classicAlgos, data, metrics, verbose)
+    #     pass
+    
+    #This private method take a model as a parameter and returns its name
+    def __get_model_name(self, algo):
+        name = str(algo).split('object')[0]
+        name = name.split('.')[-1]
+        return name
         
 
     #TODO implement the display_results method
