@@ -9,7 +9,6 @@ class ModelEvaluator:
     def __init__(self, metrics=['RMSE','MAE', 'HR', 'ARHR', 'CHR', 'Coverage', 'Diversity', 'Novelty']):
         self.metrics = metrics
 
-    # TODO implement the verbose action
     def evaluate(self, algo, splits, verbose=True):
         evaluation_dict = dict()
         trainSet, testSet = splits.accuracy_splits
@@ -17,6 +16,8 @@ class ModelEvaluator:
             print('Training the model ...')
         algo.fit(trainSet)
         predictions = algo.test(testSet)
+        if verbose:
+                print('Evaluating accuracy')
         for metric in self.metrics:
             if metric.lower() == 'rmse':
                 evaluation_dict[metric] = EvaluationMetrics.RMSE(predictions,verbose=False)
@@ -25,6 +26,8 @@ class ModelEvaluator:
             elif metric.lower() ==  'mse':
                 evaluation_dict[metric] = EvaluationMetrics.MSE(predictions,verbose=False)
         # Hit rate splitting and computation take some time it would be helpful to skip it if not necessary
+        if verbose:
+                print('Evaluating Hits')
         if ('hr' in x for x in self.metrics):
             dic = self.hit_rate_evaluation(algo, splits)
             evaluation_dict.update(dic)
