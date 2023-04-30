@@ -9,6 +9,7 @@ from wsdream_helper.Normalization import *
 from wsdream_helper import WsdreamDataset1Downloader
 
 # dataset = wsdream_utility.Wsdream()
+# WsdreamDataset1Downloader.download('work-dir')
 dataset = WsdreamDataset(Wsdream.WsdreamReader('work-dir'))
 
 # print("Loading response time data ...")
@@ -97,5 +98,6 @@ algo = SVD(random_state=10)
 model_evaluator = ModelEvaluator() 
 print(model_evaluator.evaluate(algo, splits))
 algos = [SVD(random_state=10), SVD(n_epochs=1), SVD(n_epochs=2)]
-print(model_evaluator.compare(algos=algos,data=splits))
+# print(model_evaluator.compare(algos=algos,data=splits))
+print(model_evaluator.evaluation_automator(algos=algos,dataset=dataset))
 

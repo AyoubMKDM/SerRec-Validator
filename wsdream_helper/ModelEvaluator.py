@@ -49,6 +49,17 @@ class ModelEvaluator:
 
         return evaluation_dict
     
+    def evaluation_automator(self, algos, dataset, random_state=6, densities:list=[10,20,30], metrics:list[str]=['RMSE','MAE', 'HR', 'ARHR', 'CHR'], verbose:bool=True):
+        results = dict()
+        # creating the different data splits
+        splits = [DataSplitter(dataset, item, random_state) for item in densities]
+        #evaluate the models
+        for data, density in zip(splits, densities):
+            results[f"response time {density}%"] = self.compare(algos,data.response_time, metrics, verbose=False)
+            results[f"throughput {density}%"] = self.compare(algos,data.throughput, metrics, verbose=False)
+        return results
+    
+
     @singledispatch
     def compare(self, algos, data: DataSplitter, metrics:list[str]=['RMSE','MAE', 'HR', 'ARHR', 'CHR'], verbose:bool=True) -> dict:
         #TODO write and detialed error message
@@ -57,6 +68,7 @@ class ModelEvaluator:
     @compare.register(list)
     def compare(self, algos, data: DataSplitter, metrics:list[str]=['RMSE','MAE', 'HR', 'ARHR', 'CHR'], verbose:bool=True) -> dict:
         results = dict()
+        #evaluate the models
         for model in algos:
             last_index = 0
             model_name = self.__get_model_name(model)
