@@ -96,8 +96,9 @@ sim_options = {'name': 'pearson_baseline', 'user_based': False}
 # splits = DataSplitter(dataset, density=5)
 algo = SVD(random_state=10)
 model_evaluator = ModelEvaluator() 
-print(model_evaluator.evaluate(algo, splits))
+# print(model_evaluator.evaluate(algo, splits))
+model_evaluator.evaluate(algo, splits)
 algos = [SVD(random_state=10), SVD(n_epochs=1), SVD(n_epochs=2)]
 # print(model_evaluator.compare(algos=algos,data=splits))
-print(model_evaluator.evaluation_automator(algos=algos,dataset=dataset))
+# print(model_evaluator.evaluation_automator(algos=algos,dataset=dataset))
 

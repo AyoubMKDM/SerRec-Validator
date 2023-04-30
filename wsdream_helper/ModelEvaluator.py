@@ -10,9 +10,11 @@ class ModelEvaluator:
         self.metrics = metrics
 
     # TODO implement the verbose action
-    def evaluate(self, algo, splits, verbose=False):
+    def evaluate(self, algo, splits, verbose=True):
         evaluation_dict = dict()
         trainSet, testSet = splits.accuracy_splits
+        if verbose:
+            print('Training the model ...')
         algo.fit(trainSet)
         predictions = algo.test(testSet)
         for metric in self.metrics:
@@ -27,6 +29,10 @@ class ModelEvaluator:
             dic = self.hit_rate_evaluation(algo, splits)
             evaluation_dict.update(dic)
 
+        if verbose:
+            print('Evaluation results:')
+            for key in evaluation_dict.keys():
+                print(f'{key} \t\t\t\t {evaluation_dict[key]}')
         return evaluation_dict
 
     # TODO implement the verbose action
