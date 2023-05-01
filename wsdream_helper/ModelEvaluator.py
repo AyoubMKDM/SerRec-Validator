@@ -1,15 +1,12 @@
 from . import EvaluationMetrics
-from .utility import DataSplitter
+from .utility import DataSplitter, DatasetFactory
 from surprise import AlgoBase
 from functools import singledispatch
 
 #TODO implement the verbose functionality on all the methods
 class ModelEvaluator:
-    #TODO move the metrics list from the constructor to the evaluate method
-    def __init__(self, metrics=['RMSE','MAE', 'HR', 'ARHR', 'CHR', 'Coverage', 'Diversity', 'Novelty']):
-        self.metrics = metrics
-
-    def evaluate(self, algo, splits, verbose=True):
+    def evaluate(self, algo:AlgoBase, splits:DataSplitter, 
+                 metrics:list=['RMSE','MAE', 'HR', 'ARHR', 'CHR', 'Coverage', 'Diversity', 'Novelty'], verbose:bool=True):
         evaluation_dict = dict()
         trainSet, testSet = splits.accuracy_splits
         if verbose:
@@ -18,7 +15,7 @@ class ModelEvaluator:
         predictions = algo.test(testSet)
         if verbose:
                 print('Evaluating accuracy')
-        for metric in self.metrics:
+        for metric in metrics:
             if metric.lower() == 'rmse':
                 evaluation_dict[metric] = EvaluationMetrics.RMSE(predictions,verbose=False)
             elif metric.lower() ==  'mae':
@@ -28,18 +25,18 @@ class ModelEvaluator:
         # Hit rate splitting and computation take some time it would be helpful to skip it if not necessary
         if verbose:
                 print('Evaluating Hits')
-        if ('hr' in x for x in self.metrics):
-            dic = self.hit_rate_evaluation(algo, splits)
+        if ('hr' in x for x in metrics):
+            dic = self._hit_rate_evaluation(algo, splits)
             evaluation_dict.update(dic)
 
         if verbose:
             print('Evaluation results:')
             for key in evaluation_dict.keys():
-                print(f'{key} \t\t\t\t {evaluation_dict[key]}')
+                print(f'{key} \t {evaluation_dict[key]:.4f}')
         return evaluation_dict
 
-    # TODO implement the verbose action
-    def hit_rate_evaluation(self, algo, splits, verbose=False):
+    def _hit_rate_evaluation(self, algo:AlgoBase, splits:DataSplitter, 
+                             metrics:list=['RMSE','MAE', 'HR', 'ARHR', 'CHR', 'Coverage', 'Diversity', 'Novelty']):
         evaluation_dict = dict()
         trainSet, testSet = splits.hit_splits
         bigTestSet = splits.anti_testSet_for_hits
@@ -48,7 +45,7 @@ class ModelEvaluator:
         allPredictions = algo.test(bigTestSet)
 
         topNPredicted = EvaluationMetrics.get_top_n(allPredictions, n=10)
-        for metric in self.metrics:
+        for metric in metrics:
             if metric.lower() == 'hr':
                 evaluation_dict[metric] = EvaluationMetrics.hit_rate(topNPredicted,predictions,verbose=False)
             elif metric.lower() ==  'arhr':
@@ -58,7 +55,8 @@ class ModelEvaluator:
 
         return evaluation_dict
     
-    def evaluation_automator(self, algos, dataset, random_state=6, densities:list=[10,20,30], metrics:list[str]=['RMSE','MAE', 'HR', 'ARHR', 'CHR'], verbose:bool=True):
+    def evaluation_automator(self, algos:list, dataset:DatasetFactory, random_state:int=6, 
+                             densities:list=[10,20,30], metrics:list[str]=['RMSE','MAE', 'HR', 'ARHR', 'CHR'], verbose:bool=True):
         results = dict()
         # creating the different data splits
         splits = [DataSplitter(dataset, item, random_state) for item in densities]
@@ -66,16 +64,18 @@ class ModelEvaluator:
         for data, density in zip(splits, densities):
             results[f"response time {density}%"] = self.compare(algos,data.response_time, metrics, verbose=False)
             results[f"throughput {density}%"] = self.compare(algos,data.throughput, metrics, verbose=False)
+
+        
         return results
     
 
     @singledispatch
     def compare(self, algos, data: DataSplitter, metrics:list[str]=['RMSE','MAE', 'HR', 'ARHR', 'CHR'], verbose:bool=True) -> dict:
         #TODO write and detialed error message
-        raise NotImplementedError("ERROR")
+        raise NotImplementedError("Error unsupported type")
 
     @compare.register(list)
-    def compare(self, algos, data: DataSplitter, metrics:list[str]=['RMSE','MAE', 'HR', 'ARHR', 'CHR'], verbose:bool=True) -> dict:
+    def compare(self, algos:list, data: DataSplitter, metrics:list[str]=['RMSE','MAE', 'HR', 'ARHR', 'CHR'], verbose:bool=True) -> dict:
         results = dict()
         #evaluate the models
         for model in algos:
@@ -90,7 +90,7 @@ class ModelEvaluator:
                                 last_index = int(key.split("_")[1])
                 model_name += "_" + str(last_index+1)
                 
-            results[model_name] = self.evaluate(algo=model, splits=data)
+            results[model_name] = self.evaluate(algo=model, splits=data, verbose=False)
         return results
 
     #TODO implement the next method
