@@ -2,6 +2,8 @@ from . import EvaluationMetrics
 from .utility import DataSplitter, DatasetFactory
 from surprise import AlgoBase
 from functools import singledispatch
+from tabulate import tabulate
+
 
 #TODO implement the verbose functionality on all the methods
 class ModelEvaluator:
@@ -55,6 +57,7 @@ class ModelEvaluator:
 
         return evaluation_dict
     
+    #TODO if densities is empty
     def evaluation_automator(self, algos:list, dataset:DatasetFactory, random_state:int=6, 
                              densities:list=[10,20,30], metrics:list[str]=['RMSE','MAE', 'HR', 'ARHR', 'CHR'], verbose:bool=True):
         results = dict()
@@ -62,10 +65,33 @@ class ModelEvaluator:
         splits = [DataSplitter(dataset, item, random_state) for item in densities]
         #evaluate the models
         for data, density in zip(splits, densities):
+            if verbose:
+                print(f'Training the different models on the response time data with the density {density}')
             results[f"response time {density}%"] = self.compare(algos,data.response_time, metrics, verbose=False)
+            if verbose:
+                print(f'Training the different models on the throughput data with the density {density}')
             results[f"throughput {density}%"] = self.compare(algos,data.throughput, metrics, verbose=False)
 
-        
+        if verbose:
+            content = {'models_name': []}
+            for metric in metrics:
+                content[metric] = []
+            for table_name in results.keys():
+                print(f'{table_name}')
+                for model_name in results[table_name].keys():
+                    content['models_name'].append(model_name)
+                    for metric in metrics:
+                        print(f'{content = }')
+                        print(f'{results[table_name][model_name] = }')
+                        print(f'{metric = }')
+                        print(f'{results[table_name][model_name][metric] = }')
+                        content[metric].append(results[table_name][model_name][metric])
+
+                print(f'Response time {density}%')
+
+
+
+            print(tabulate(content, headers='keys',tablefmt='fancy_grid'))
         return results
     
 
