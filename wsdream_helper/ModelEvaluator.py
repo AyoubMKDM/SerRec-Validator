@@ -3,6 +3,7 @@ from .utility import DataSplitter, DatasetFactory
 from surprise import AlgoBase
 from functools import singledispatch
 from tabulate import tabulate
+import pandas as pd
 
 
 #TODO implement the verbose functionality on all the methods
@@ -77,21 +78,19 @@ class ModelEvaluator:
             for metric in metrics:
                 content[metric] = []
             for table_name in results.keys():
-                print(f'{table_name}')
                 for model_name in results[table_name].keys():
                     content['models_name'].append(model_name)
                     for metric in metrics:
-                        print(f'{content = }')
-                        print(f'{results[table_name][model_name] = }')
-                        print(f'{metric = }')
-                        print(f'{results[table_name][model_name][metric] = }')
                         content[metric].append(results[table_name][model_name][metric])
+            df = pd.DataFrame(data=content)
 
-                print(f'Response time {density}%')
-
-
-
-            print(tabulate(content, headers='keys',tablefmt='fancy_grid'))
+            for i, density in enumerate(densities):
+                print(f'response time with {density}% density')
+                index = i*6
+                print(tabulate(df.iloc[index:index+len(algos)], headers='keys',tablefmt='fancy_grid'))
+                print(f'throughput with {density}% density')
+                index = index + 3
+                print(tabulate(df.iloc[index:index+len(algos)], headers='keys',tablefmt='fancy_grid'))
         return results
     
 

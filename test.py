@@ -102,5 +102,6 @@ model_evaluator = ModelEvaluator()
 # model_evaluator.evaluate(algo, splits)
 algos = [SVD(n_epochs=3,random_state=10), SVD(n_epochs=1), SVD(n_epochs=2)]
 # print(model_evaluator.compare(algos=algos,data=splits))
-model_evaluator.evaluation_automator(algos=algos, dataset=dataset, densities=[10], verbose=True)
+results = model_evaluator.evaluation_automator(algos=algos, dataset=dataset, verbose=True)
+# print(results)
 
