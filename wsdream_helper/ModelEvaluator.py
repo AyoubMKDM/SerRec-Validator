@@ -97,33 +97,47 @@ class ModelEvaluator:
     @singledispatch
     def compare(self, algos, data: DataSplitter, metrics:list[str]=['RMSE','MAE', 'HR', 'ARHR', 'CHR'], verbose:bool=True) -> dict:
         #TODO write and detialed error message
-        raise NotImplementedError("Error unsupported type")
+        raise NotImplementedError("Unsupported type")
 
     @compare.register(list)
     def compare(self, algos:list, data: DataSplitter, metrics:list[str]=['RMSE','MAE', 'HR', 'ARHR', 'CHR'], verbose:bool=True) -> dict:
-        results = dict()
-        #evaluate the models
+        algos_dictionary = dict()
+        if not isinstance(algos[0],AlgoBase):
+            raise TypeError("Unsupported type: you should pass a dictionary with AlgoBase models")
+        #Naming the models
         for model in algos:
             last_index = 0
             model_name = self.__get_model_name(model)
-            if model_name in results.keys():
-                for key in results.keys():
+            if model_name in algos_dictionary.keys():
+                for key in algos_dictionary.keys():
                     #Check if the model name already available if so add a number to the model name
                     if key.find(model_name) > -1 :
                         if key.find('_') >-1:
                             if (last_index < int(key.split("_")[1])):
                                 last_index = int(key.split("_")[1])
                 model_name += "_" + str(last_index+1)
-                
-            results[model_name] = self.evaluate(algo=model, splits=data, verbose=False)
+            algos_dictionary[model_name] = model
+        results = self.compare(algos=algos_dictionary, data=data, metics=metrics, verbose=verbose)
+        return results
+    
+    @compare.register(dict)
+    def compare(self, algos:dict, data: DataSplitter, metrics:list[str]=['RMSE','MAE', 'HR', 'ARHR', 'CHR'], verbose:bool=True) -> dict:
+        results = dict()
+        #evaluate the models
+        for model_name in algos.keys():
+            model = algos[model_name]
+            if isinstance(model, AlgoBase): 
+                if verbose:
+                    print(f'Evaluating {model_name}')
+                results[model_name] = self.evaluate(algo=model, splits=data, metrics=metrics, verbose=verbose)
+            else:
+                raise TypeError("Unsupported type: you should pass a dictionary with AlgoBase models")
+            
+        if verbose:
+            self.display_results()
         return results
 
-    #TODO implement the next method
-    # @compare.register(AlgoBase)
-    # def compare(self, algos, data: DataSplitter, metrics:list[str]=['RMSE','MAE', 'HR', 'ARHR', 'CHR'], verbose:bool=True) -> dict:
-    #     # classicAlgos = [UIPCC, PMF, NMF, PMF, NTF, algos]
-    #     # return self.compare(classicAlgos, data, metrics, verbose)
-    #     pass
+
     
     #This private method take a model as a parameter and returns its name
     def __get_model_name(self, algo):
@@ -133,5 +147,16 @@ class ModelEvaluator:
         
 
     #TODO implement the display_results method
-    def display_results(results:dict) -> None:
-        pass
+    def display_results(self, results:dict, metrics, densities, models_count) -> None:
+        content = {'models_name': []}
+        for metric in metrics:
+            content[metric] = []
+        for table_name in results.keys():
+            for model_name in results[table_name].keys():
+                content['models_name'].append(model_name)
+                for metric in metrics:
+                    content[metric].append(results[table_name][model_name][metric])
+        df = pd.DataFrame(data=content)
+
+        print('Results table:')    
+        print(tabulate(df, headers='keys',tablefmt='fancy_grid'))
