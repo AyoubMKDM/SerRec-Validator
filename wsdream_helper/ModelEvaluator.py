@@ -68,34 +68,33 @@ def evaluation_automator(algos:list, dataset:DatasetFactory, random_state:int=6,
     for data, density in zip(splits, densities):
         if verbose:
             print(f'Training the different models on the response time data with the density {density}')
-        results[f"response time {density}%"] = compare(algos,data.response_time, metrics, verbose=False)
+        results[f"response time {density}%"] = compare(algos,data.response_time, metrics, verbose=verbose)
         if verbose:
             print(f'Training the different models on the throughput data with the density {density}')
-        results[f"throughput {density}%"] = compare(algos,data.throughput, metrics, verbose=False)
+        results[f"throughput {density}%"] = compare(algos,data.throughput, metrics, verbose=verbose)
+    # if verbose:
+    #     content = {'model_name': []}
+    #     for metric in metrics:
+    #         content[metric] = []
+    #     for table_name in results.keys():
+    #         for model_name in results[table_name].keys():
+    #             content['model_name'].append(model_name)
+    #             for metric in metrics:
+    #                 content[metric].append(results[table_name][model_name][metric])
+    #     df = pd.DataFrame(data=content)
 
-    if verbose:
-        content = {'model_name': []}
-        for metric in metrics:
-            content[metric] = []
-        for table_name in results.keys():
-            for model_name in results[table_name].keys():
-                content['model_name'].append(model_name)
-                for metric in metrics:
-                    content[metric].append(results[table_name][model_name][metric])
-        df = pd.DataFrame(data=content)
-
-        for i, density in enumerate(densities):
-            print(f'response time with {density}% density')
-            index = i*6
-            print(tabulate(df.iloc[index:index+len(algos)], headers='keys',tablefmt='fancy_grid'))
-            print(f'throughput with {density}% density')
-            index = index + 3
-            print(tabulate(df.iloc[index:index+len(algos)], headers='keys',tablefmt='fancy_grid'))
+    #     for i, density in enumerate(densities):
+    #         print(f'response time with {density}% density')
+    #         index = i*2*len(algos)
+    #         print(tabulate(df.iloc[index:index+len(algos)], headers='keys',tablefmt='fancy_grid'))
+    #         print(f'throughput with {density}% density')
+    #         index = index + len(algos)
+    #         print(tabulate(df.iloc[index:index+len(algos)], headers='keys',tablefmt='fancy_grid'))
     return results
 
 
 @singledispatch
-def compare(algos, data: DataSplitter, metrics:list[str]=['RMSE','MAE', 'HR', 'ARHR', 'CHR'], verbose:bool=True) -> dict:
+def compare(algos:any, data: DataSplitter, metrics:list[str]=['RMSE','MAE', 'HR', 'ARHR', 'CHR'], verbose:bool=True) -> dict:
     #TODO write and detialed error message
     raise NotImplementedError("Unsupported type")
 
@@ -140,14 +139,14 @@ def _(algos:dict, data: DataSplitter, metrics:list[str]=['RMSE','MAE', 'HR', 'AR
 
 
 #This private method take a model as a parameter and returns its name
-def __get_model_name(algo):
+def __get_model_name(algo:AlgoBase):
     name = str(algo).split('object')[0]
     name = name.split('.')[-1]
     return name
     
 
 #TODO implement the display_results method
-def display_results(results:dict, metrics) -> None:
+def display_results(results:dict, metrics:list) -> None:
     content = {'model_name': []}
     for metric in metrics:
         content[metric] = []
