@@ -3,7 +3,7 @@ from surprise import SVD
 from wsdream_helper import EvaluationMetrics
 from surprise import KNNBaseline
 from wsdream_helper.utility import DataSplitter
-from wsdream_helper.ModelEvaluator import ModelEvaluator
+from wsdream_helper import ModelEvaluator
 from wsdream_helper.Wsdream import WsdreamDataset
 from wsdream_helper.Normalization import *
 from wsdream_helper import WsdreamDataset1Downloader
@@ -95,13 +95,18 @@ sim_options = {'name': 'pearson_baseline', 'user_based': False}
 # # wsdream = wsdream_utility.Wsdream()
 # splits = DataSplitter(dataset, density=5)
 # algo = SVD(random_state=10)
-model_evaluator = ModelEvaluator()
 
-
-# print(model_evaluator.evaluate(algo, splits))
-# model_evaluator.evaluate(algo, splits)
+# print(ModelEvaluator.evaluate(algo, splits))
+# ModelEvaluator.evaluate(algo, splits)
 algos = [SVD(n_epochs=3,random_state=10), SVD(n_epochs=1), SVD(n_epochs=2)]
-model_evaluator.compare(algos=algos, data=splits, verbose=True)
-# results = model_evaluator.evaluation_automator(algos=algos, dataset=dataset, verbose=True)
+
+# algos = {
+#     'SVD 30 epochs' : SVD(n_epochs=30,random_state=10),
+#     'SVD 10 epoch' : SVD(n_epochs=10),
+#     'SVD 20 epochs' : SVD(n_epochs=20)
+# }
+
+# ModelEvaluator.compare(algos, data=splits, verbose=True)
+results = ModelEvaluator.evaluation_automator(algos=algos, dataset=dataset, verbose=True)
 # print(results)
 
