@@ -59,19 +59,23 @@ def _hit_rate_evaluation(algo:AlgoBase, splits:DataSplitter,
     return evaluation_dict
 
 #TODO if densities is empty
-def evaluation_automator(algos:list, dataset:DatasetFactory, random_state:int=6, 
+def evaluation_automator(algos:list, dataset:DatasetFactory, 
+                            ignore_response_time:bool=False, ignore_throuput:bool=False, random_state:int=6, 
                             densities:list=[10,20,30], metrics:list[str]=['RMSE','MAE', 'HR', 'ARHR', 'CHR'], verbose:bool=True):
     results = dict()
     # creating the different data splits
     splits = [DataSplitter(dataset, item, random_state) for item in densities]
     #evaluate the models
     for data, density in zip(splits, densities):
-        if verbose:
-            print(f'Training the different models on the response time data with the density {density}')
-        results[f"response time {density}%"] = compare(algos,data.response_time, metrics, verbose=verbose)
-        if verbose:
-            print(f'Training the different models on the throughput data with the density {density}')
-        results[f"throughput {density}%"] = compare(algos,data.throughput, metrics, verbose=verbose)
+        
+        if not ignore_response_time:
+            if verbose:
+                print(f'Training the different models on the response time data with the density {density}')
+            results[f"response time {density}%"] = compare(algos,data.response_time, metrics, verbose=verbose)
+        if not ignore_throuput:
+            if verbose:
+                print(f'Training the different models on the throughput data with the density {density}')
+            results[f"throughput {density}%"] = compare(algos,data.throughput, metrics, verbose=verbose)
     # if verbose:
     #     content = {'model_name': []}
     #     for metric in metrics:
@@ -136,16 +140,12 @@ def _(algos:dict, data: DataSplitter, metrics:list[str]=['RMSE','MAE', 'HR', 'AR
         display_results(results=results,metrics=metrics)
     return results
 
-
-
 #This private method take a model as a parameter and returns its name
 def __get_model_name(algo:AlgoBase):
     name = str(algo).split('object')[0]
     name = name.split('.')[-1]
     return name
     
-
-#TODO implement the display_results method
 def display_results(results:dict, metrics:list) -> None:
     content = {'model_name': []}
     for metric in metrics:

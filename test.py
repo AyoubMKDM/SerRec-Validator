@@ -107,6 +107,6 @@ algos = [SVD(n_epochs=3,random_state=10), SVD(n_epochs=1), SVD(n_epochs=2)]
 # }
 
 # ModelEvaluator.compare(algos, data=splits, verbose=True)
-results = ModelEvaluator.evaluation_automator(algos=algos, dataset=dataset, verbose=True)
+results = ModelEvaluator.evaluation_automator(algos=algos, dataset=dataset, ignore_throuput=True, verbose=True)
 # print(results)
 
