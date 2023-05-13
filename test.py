@@ -1,5 +1,5 @@
 from wsdream_helper import Wsdream
-from surprise import SVD
+from surprise import SVD, SVDpp, NMF, SlopeOne, NormalPredictor, KNNBaseline, KNNBasic, KNNWithMeans, KNNWithMeans, KNNWithZScore, BaselineOnly, CoClustering
 from wsdream_helper import EvaluationMetrics
 from surprise import KNNBaseline
 from wsdream_helper.utility import DataSplitter
@@ -23,7 +23,7 @@ splits = DataSplitter(dataset, 5, 6).response_time
 # # fullTrainSet = data.build_full_trainset()
 # # fullTrainSet = splits.trainset_from_full_data['response_time']
 # fullTrainSet = splits.response_time_splits.full_trainSet
-sim_options = {'name': 'pearson_baseline', 'user_based': False}
+# sim_options = {'name': 'pearson_baseline', 'user_based': False}
 # simsAlgo = KNNBaseline(sim_options=sim_options)
 # simsAlgo.fit(fullTrainSet)
 
@@ -98,7 +98,7 @@ sim_options = {'name': 'pearson_baseline', 'user_based': False}
 
 # print(ModelEvaluator.evaluate(algo, splits))
 # ModelEvaluator.evaluate(algo, splits)
-algos = [SVD(n_epochs=3,random_state=10), SVD(n_epochs=1), SVD(n_epochs=2)]
+algos = [SVD(), SVDpp(), SlopeOne(), NMF(), NormalPredictor(), KNNBaseline(), KNNBasic(), KNNWithMeans(), KNNWithZScore(), BaselineOnly(), CoClustering()]
 
 # algos = {
 #     'SVD 30 epochs' : SVD(n_epochs=30,random_state=10),
@@ -107,6 +107,6 @@ algos = [SVD(n_epochs=3,random_state=10), SVD(n_epochs=1), SVD(n_epochs=2)]
 # }
 
 # ModelEvaluator.compare(algos, data=splits, verbose=True)
-results = ModelEvaluator.evaluation_automator(algos=algos, dataset=dataset, ignore_throuput=True, verbose=True)
+results = ModelEvaluator.benchmark(algos=algos, dataset=dataset, verbose=True)
 # print(results)
 
