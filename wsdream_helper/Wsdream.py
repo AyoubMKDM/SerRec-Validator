@@ -142,7 +142,7 @@ class WsdreamReader:
         return df
 
 class WsdreamDataset(DatasetFactory):
-    def __init__(self, wsdream, normalization_strategy: NormalizationStrategy = NormalizationBasic) -> None:
+    def __init__(self, wsdream: WsdreamReader, normalization_strategy: NormalizationStrategy = NormalizationBasic) -> None:
         self.wsdream = wsdream
         self.normalization_strategy = normalization_strategy
         self._responseTime =  self.normalization_strategy.normalize(self.wsdream.df_responseTime)
@@ -192,7 +192,7 @@ class WsdreamDataset(DatasetFactory):
             A pandas DataFrame with columns 'User ID', 'IP Address, 'Country', 'IP No.', 'AS',
                 'Latitude', and 'Longitude' containing information about the users in the Wsdream dataset1.
         """
-        return self.wsdream.usersList
+        return self.wsdream.users_df
     
     def get_services(self) -> pd.DataFrame:
         """
@@ -203,5 +203,5 @@ class WsdreamDataset(DatasetFactory):
                 'Country', 'IP No.', 'AS', 'Latitude', 'Longitude' containing information about the services in the Wsdream dataset1.
         """
 
-        return self.wsdream.servicesList
+        return self.wsdream.services_df
     
