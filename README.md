@@ -80,6 +80,9 @@ print("Novelty:", novelty)
 print("Diversity:", diversity)
 ```
 
+We welcome contributions and feedback from the community to further improve and expand the functionality of SerRec-Validator. Together, we can enhance the evaluation of service recommendations and contribute to the advancement of this vital research field.
+
+
 
 
 
