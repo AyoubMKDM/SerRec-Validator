@@ -1,3 +1,4 @@
+[![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 # SerRec-Validator
 SerRec-Validator is a Python package developed to address the challenges of benchmarking and evaluating service recommendations. This framework offers a comprehensive set of evaluation metrics and tools, facilitating the development and assessment of recommender models in various domains.
 
