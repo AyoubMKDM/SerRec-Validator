@@ -6,9 +6,11 @@ from tabulate import tabulate
 import pandas as pd
 
 # TODO implement the verbose functionality on all the methods
+# TODO add docstrings 
 def evaluate(algo: AlgoBase, splits: DataSplitter,
              metrics: list = ['RMSE', 'MAE', 'HR', 'ARHR', 'CHR', 'Coverage', 'Diversity', 'Novelty'],
-             verbose: bool = True):
+             verbose: bool = True,
+             k:int = 10):
     evaluation_dict = dict()
     trainSet, testSet = splits.accuracy_splits
     if verbose:
@@ -29,7 +31,7 @@ def evaluate(algo: AlgoBase, splits: DataSplitter,
     if verbose:
         print('Evaluating Hits ...')
     if ('hr' in x for x in metrics):
-        dic = _hit_rate_evaluation(algo, splits)
+        dic = _hit_rate_evaluation(algo, splits, k=k)
         evaluation_dict.update(dic)
     if verbose:
         print('Results:')
@@ -37,7 +39,7 @@ def evaluate(algo: AlgoBase, splits: DataSplitter,
             print(f'{key} \t {evaluation_dict[key]:.4f}')
     return evaluation_dict
 
-def _hit_rate_evaluation(algo: AlgoBase, splits: DataSplitter,
+def _hit_rate_evaluation(algo: AlgoBase, splits: DataSplitter, k: int,
                          metrics: list = ['RMSE', 'MAE', 'HR', 'ARHR', 'CHR', 'Coverage', 'Diversity', 'Novelty']):
     evaluation_dict = dict()
     trainSet, testSet = splits.hit_splits
@@ -45,7 +47,7 @@ def _hit_rate_evaluation(algo: AlgoBase, splits: DataSplitter,
     algo.fit(trainSet)
     predictions = algo.test(testSet)
     allPredictions = algo.test(bigTestSet)
-    topNPredicted = EvaluationMetrics.get_top_n(allPredictions, n=10)
+    topNPredicted = EvaluationMetrics.get_top_n(allPredictions, n=k)
     for metric in metrics:
         if metric.lower() == 'hr':
             evaluation_dict[metric] = EvaluationMetrics.hit_rate(topNPredicted, predictions, verbose=False)
@@ -57,7 +59,7 @@ def _hit_rate_evaluation(algo: AlgoBase, splits: DataSplitter,
     return evaluation_dict
 
  # TODO if densities is empty
-def benchmark(algos: list, dataset: DatasetFactory,
+def benchmark(algos: list, dataset: DatasetFactory, k : int = 10,
                          ignore_response_time: bool = False, ignore_throuput: bool = False, random_state: int = 6,
                          densities: list = [10, 20, 30],
                          metrics: list[str] = ['RMSE', 'MAE', 'HR', 'ARHR', 'CHR'], verbose: bool = True):
@@ -69,21 +71,21 @@ def benchmark(algos: list, dataset: DatasetFactory,
         if not ignore_response_time:
             if verbose:
                 print(f'Training the different models on the response time data with the density {density}%')
-            results[f"response time {density}%"] = compare(algos, data.response_time, metrics, verbose=verbose)
+            results[f"response time {density}%"] = compare(algos, data.response_time, k, metrics, verbose=verbose)
         if not ignore_throuput:
             if verbose:
                 print(f'Training the different models on the throughput data with the density {density}%')
-            results[f"throughput {density}%"] = compare(algos, data.throughput, metrics, verbose=verbose)
+            results[f"throughput {density}%"] = compare(algos, data.throughput, k, metrics, verbose=verbose)
     return results
 
 @singledispatch
-def compare(algos: any, data: DataSplitter, metrics: list[str] = ['RMSE', 'MAE', 'HR', 'ARHR', 'CHR'],
+def compare(algos: any, data: DataSplitter, k: int = 10, metrics: list[str] = ['RMSE', 'MAE', 'HR', 'ARHR', 'CHR'],
             verbose: bool = True) -> dict:
     # TODO write and detialed error message
     raise NotImplementedError("Unsupported type")
 
 @compare.register(list)
-def _(algos: list, data: DataSplitter, metrics: list[str] = ['RMSE', 'MAE', 'HR', 'ARHR', 'CHR'],
+def _(algos: list, data: DataSplitter, k: int = 10, metrics: list[str] = ['RMSE', 'MAE', 'HR', 'ARHR', 'CHR'],
       verbose: bool = True) -> dict:
     algos_dictionary = dict()
     if not isinstance(algos[0], AlgoBase):
@@ -106,7 +108,7 @@ def _(algos: list, data: DataSplitter, metrics: list[str] = ['RMSE', 'MAE', 'HR'
     return results
 
 @compare.register(dict)
-def _(algos: dict, data: DataSplitter, metrics: list[str] = ['RMSE', 'MAE', 'HR', 'ARHR', 'CHR'],
+def _(algos: dict, data: DataSplitter, k: int = 10, metrics: list[str] = ['RMSE', 'MAE', 'HR', 'ARHR', 'CHR'],
       verbose: bool = True) -> dict:
     results = dict()
     # evaluate the models
@@ -115,7 +117,7 @@ def _(algos: dict, data: DataSplitter, metrics: list[str] = ['RMSE', 'MAE', 'HR'
         if isinstance(model, AlgoBase):
             if verbose:
                 print(f'Evaluating {model_name}')
-            results[model_name] = evaluate(algo=model, splits=data, metrics=metrics, verbose=verbose)
+            results[model_name] = evaluate(algo=model, k=k, splits=data, metrics=metrics, verbose=verbose)
         else:
             raise TypeError("Unsupported type: you should pass a dictionary with AlgoBase models")
     if verbose:

@@ -1,5 +1,6 @@
 from setuptools import setup
 
+#TODO add classifiers
 setup(name="wsdream_utility",
         version="0.1",
         description="Dataset helper",
