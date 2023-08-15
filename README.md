@@ -1,3 +1,5 @@
+![GitHub version](https://img.shields.io/badge/version-0.1-8A2BE2)
+![python versions](https://img.shields.io/badge/python-3.8%2B-green)
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 # SerRec-Validator
 SerRec-Validator is a Python package developed to address the challenges of benchmarking and evaluating service recommendations. This framework offers a comprehensive set of evaluation metrics and tools, facilitating the development and assessment of recommender models in various domains.
@@ -80,6 +82,11 @@ diversity = EvaluationMetrics.diversity(top_n_predicted)
 print("Novelty:", novelty)
 print("Diversity:", diversity)
 ```
+## License
+This project is licensed under the [BSD3-Clause](https://opensource.org/licenses/BSD-3-Clause) license, so it can be used for pretty much everything, including commercial applications.
+
+I'd love to know how SerRec-Validator is useful to you. Please don't hesitate to open an issue and describe how you use it!
+
 
 We welcome contributions and feedback from the community to further improve and expand the functionality of SerRec-Validator. Together, we can enhance the evaluation of service recommendations and contribute to the advancement of this vital research field.
 
