@@ -10,4 +10,4 @@ setup(name="wsdream_utility",
         install_requires=["numpy",
                             "pandas"],
         include_package_data=True,
-        package_data={'':['wsdream/*']})
+        package_data={'':['wsdream/*.txt']})
