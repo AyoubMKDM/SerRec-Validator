@@ -12,6 +12,10 @@ from wsdream_helper import WsdreamDataset1Downloader
 # WsdreamDataset1Downloader.download('work-dir')
 dataset = WsdreamDataset(Wsdream.WsdreamReader('work-dir'))
 
+wsdream = Wsdream.WsdreamReader('work-dir')
+wsdream.save_list_tocsv('users_df')
+wsdream.save_list_tocsv('services_df')
+
 # print("Loading response time data ...")
 # data = dataset.get_responseTime(density=5)
 
@@ -98,15 +102,15 @@ splits = DataSplitter(dataset, 5, 6).response_time
 
 # print(ModelEvaluator.evaluate(algo, splits))
 # ModelEvaluator.evaluate(algo, splits)
-algos = [SVD(), SVDpp(), SlopeOne(), NMF(), NormalPredictor(), KNNBaseline(), KNNBasic(), KNNWithMeans(), KNNWithZScore(), BaselineOnly(), CoClustering()]
+# algos = [SVD(), SVDpp(), SlopeOne(), NMF(), NormalPredictor(), KNNBaseline(), KNNBasic(), KNNWithMeans(), KNNWithZScore(), BaselineOnly(), CoClustering()]
 
-# algos = {
-#     'SVD 30 epochs' : SVD(n_epochs=30,random_state=10),
-#     'SVD 10 epoch' : SVD(n_epochs=10),
-#     'SVD 20 epochs' : SVD(n_epochs=20)
-# }
+# # algos = {
+# #     'SVD 30 epochs' : SVD(n_epochs=30,random_state=10),
+# #     'SVD 10 epoch' : SVD(n_epochs=10),
+# #     'SVD 20 epochs' : SVD(n_epochs=20)
+# # }
 
-# ModelEvaluator.compare(algos, data=splits, verbose=True)
-results = ModelEvaluator.benchmark(algos=algos, dataset=dataset, verbose=True)
-# print(results)
+# # ModelEvaluator.compare(algos, data=splits, verbose=True)
+# results = ModelEvaluator.benchmark(algos=algos, dataset=dataset, verbose=True)
+# # print(results)
 

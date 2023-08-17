@@ -21,6 +21,7 @@ class WsdreamReader:
     throughputMatrix (numpy.ndarray): 339 x 5825 user-item matrix for throughput.
 
     Methods:
+    #TODO change this
     save_lists_tocsv(): saves the usersList and servicesList DataFrames into a CSV file when needed.
 
     Parameters:
@@ -99,16 +100,19 @@ class WsdreamReader:
         data_list = [[i,j,matrix[i][j]] for i in range(matrix.shape[0]) for j in range(matrix.shape[1]) if matrix[i][j] != -1]
         return data_list
 
-    def save_lists_tocsv(self):
+    def save_list_tocsv(self, listName: str):
         """
-        Create a CSV file from usersList and servicesList DataFrames. and store it in the current directory.
+        Create a CSV file from users_df or services_df DataFrames. and store it in the current directory under the name usersList or servicesList respectively.
         Parameters:
-            None
+            listName (str): The name of the list to be saved, acceptable values 'users_df' or 'users_df'
         Return:
             None
         """
-        self.users_df.to_csv("usersList.csv")
-        self.services_df.to_csv("servicesList.csv")
+        if listName == 'users_df' or listName == 'users_df':
+            self.users_df.to_csv(listName[:-3] + "List.csv")
+            print(f'"{listName}" is saved to the file "{listName[:-3]}List.csv".')
+        else:
+            print('No such attibute with the name "{listName[:-3]}List.csv"')
 
     @staticmethod
     def dataframe_fromtxt(path : str) -> pd.DataFrame:
