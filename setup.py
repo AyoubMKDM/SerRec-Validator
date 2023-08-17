@@ -8,4 +8,6 @@ setup(name="wsdream_utility",
         author="Ayoub Mokeddem",
         author_email="ayoubmkdm3@gmail.com",
         install_requires=["numpy",
-                            "pandas"])
+                            "pandas"],
+        include_package_data=True,
+        package_data={'':['wsdream/*']})

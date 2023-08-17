@@ -10,11 +10,11 @@ from wsdream_helper import WsdreamDataset1Downloader
 
 # dataset = wsdream_utility.Wsdream()
 # WsdreamDataset1Downloader.download('work-dir')
-dataset = WsdreamDataset(Wsdream.WsdreamReader('work-dir'))
+dataset = WsdreamDataset(Wsdream.WsdreamReader('wsdream'))
 
-wsdream = Wsdream.WsdreamReader('work-dir')
-wsdream.save_list_tocsv('users_df')
-wsdream.save_list_tocsv('services_df')
+# wsdream = Wsdream.WsdreamReader('work-dir')
+# wsdream.save_list_tocsv('users_df')
+# wsdream.save_list_tocsv('services_df')
 
 # print("Loading response time data ...")
 # data = dataset.get_responseTime(density=5)
