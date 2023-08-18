@@ -5,7 +5,9 @@ from surprise import Dataset
 from surprise import Reader
 from .utility import DatasetFactory,NormalizationStrategy
 from .Normalization import NormalizationBasic
+from importlib.resources import files
 import errno
+
 
 class WsdreamReader:
     """
@@ -41,6 +43,11 @@ class WsdreamReader:
             cls.__dir = ""
             if dir is not None:
                 cls.__dir = dir
+            else:
+                #TODO change this when changing the package name
+                # dir = files('wsdream_helper.wsdream')
+                pass
+
             print('Checking the availability of all files in the dataset ...')
             cls._files_checker()
 

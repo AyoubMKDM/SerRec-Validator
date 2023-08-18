@@ -1,18 +1,18 @@
-from wsdream_helper import Wsdream
+from serrec_validator import WsdreamHelper
 from surprise import SVD, SVDpp, NMF, SlopeOne, NormalPredictor, KNNBaseline, KNNBasic, KNNWithMeans, KNNWithMeans, KNNWithZScore, BaselineOnly, CoClustering
-from wsdream_helper import EvaluationMetrics
+from serrec_validator import EvaluationMetrics
 from surprise import KNNBaseline
-from wsdream_helper.utility import DataSplitter
-from wsdream_helper import ModelEvaluator
-from wsdream_helper.Wsdream import WsdreamDataset
-from wsdream_helper.Normalization import *
-from wsdream_helper import WsdreamDataset1Downloader
+from serrec_validator.utility import DataSplitter
+from serrec_validator import ModelEvaluator
+from serrec_validator.WsdreamHelper import WsdreamDataset
+from serrec_validator.Normalization import *
+from serrec_validator import WsdreamDataset1Downloader
 
 # dataset = wsdream_utility.Wsdream()
 # WsdreamDataset1Downloader.download('work-dir')
-dataset = WsdreamDataset(Wsdream.WsdreamReader('wsdream'))
+dataset = WsdreamDataset(WsdreamHelper.WsdreamReader('work-dir'))
 
-# wsdream = Wsdream.WsdreamReader('work-dir')
+# wsdream = WsdreamHelper.WsdreamReader('work-dir')
 # wsdream.save_list_tocsv('users_df')
 # wsdream.save_list_tocsv('services_df')
 
