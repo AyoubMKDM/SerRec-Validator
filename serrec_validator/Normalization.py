@@ -1,7 +1,7 @@
 from .utility import NormalizationStrategy
 from pandas import DataFrame
 
-class NormalizationBasic(NormalizationStrategy):
+class basic(NormalizationStrategy):
     @staticmethod
     def normalize(data_df: DataFrame) -> DataFrame:
         max = data_df['Rating'].max()
@@ -13,7 +13,7 @@ class NormalizationBasic(NormalizationStrategy):
         # TODO implement this method to revert the normalization on recommendation results
         pass
 
-class NormalizationScalingToRange(NormalizationStrategy):
+class scalingToRange(NormalizationStrategy):
     """
     This class implements a normalization strategy for a Pandas DataFrame with a 'Rating' column. The method 
     scales each rating value in the 'Rating' column to the range [0,1], also known as min-max normalization.
@@ -28,7 +28,7 @@ class NormalizationScalingToRange(NormalizationStrategy):
     """
     @staticmethod
     def normalize(data_df: DataFrame) -> DataFrame:
-        data_df = NormalizationBasic.normalize(data_df)
+        data_df = basic.normalize(data_df)
         min = data_df['Rating'].min()
         max = data_df['Rating'].max()
         data_df['Rating'] = (data_df['Rating'] - min) / (max - min)
@@ -39,7 +39,7 @@ class NormalizationScalingToRange(NormalizationStrategy):
         # TODO implement this method to revert the normalization on recommendation results
         pass
     
-class NormalizationZScore(NormalizationStrategy):
+class zScore(NormalizationStrategy):
     """
     This class implements a normalization strategy for a Pandas DataFrame with a 'Rating' column. The method 
     scales each rating value in the 'Rating' column to a z-score.
@@ -57,7 +57,7 @@ class NormalizationZScore(NormalizationStrategy):
         mean = data_df['Rating'].mean()
         std = data_df['Rating'].std()
         data_df['Rating'] = (data_df['Rating'] - mean)/std
-        return NormalizationBasic.normalize(data_df)
+        return basic.normalize(data_df)
 
     
     @staticmethod
@@ -65,7 +65,7 @@ class NormalizationZScore(NormalizationStrategy):
         # TODO implement this method to revert the normalization on recommendation results
         pass
 
-class NormalizationClipping(NormalizationStrategy):
+class clipping(NormalizationStrategy):
     # TODO implement this class
     @staticmethod
     def normalize(data_df: DataFrame) -> DataFrame:
@@ -75,7 +75,7 @@ class NormalizationClipping(NormalizationStrategy):
     def revert_normalization(data_df: DataFrame) -> DataFrame:
         pass
 
-class NormalizationLogScaling(NormalizationStrategy):
+class logScaling(NormalizationStrategy):
     # TODO implement this class
     @staticmethod
     def normalize(data_df: DataFrame) -> DataFrame:
