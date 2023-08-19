@@ -115,11 +115,14 @@ class WsdreamReader:
         Return:
             None
         """
-        if listName == 'users_df' or listName == 'services_df':
+        if listName != 'users_df' and listName != 'services_df':
+            print(f'No such attibute with the name "{listName}."')
+        elif listName == 'users_df':
             self.users_df.to_csv(listName[:-3] + "List.csv",index=False)
-            print(f'"{listName}" is saved to the file "{listName[:-3]}List.csv".')
-        else:
-            print(f'No such attibute with the name "{listName[:-3]}List.csv"')
+        elif listName == 'services_df':
+            self.services_df.to_csv(listName[:-3] + "List.csv",index=False)
+        print(f'"{listName}" is saved to the file "{listName[:-3]}List.csv".')
+        
 
     @staticmethod
     def dataframe_fromtxt(path : str) -> pd.DataFrame:
