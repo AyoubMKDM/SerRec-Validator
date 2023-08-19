@@ -7,6 +7,7 @@ from .utility import DatasetFactory,NormalizationStrategy
 from .Normalization import basic
 from importlib.resources import files
 import errno
+import pkg_resources
 
 
 class WsdreamReader:
@@ -37,22 +38,19 @@ class WsdreamReader:
     __dir = None
     __instance = None
 
-    def __new__(cls, dir : str =None):
+    def __new__(cls, dir : str =None, builtin: bool =False):
         if (cls.__instance is None):
             print('Creating the dataset object ...')
             cls.__dir = ""
             if dir is not None:
                 cls.__dir = dir
-            else:
-                #TODO change this when changing the package name
-                # dir = files('wsdream_helper.wsdream')
-                pass
-
-            print('Checking the availability of all files in the dataset ...')
-            cls._files_checker()
+            
+            if not(builtin):
+                print('Checking the availability of all files in the dataset ...')
+                cls._files_checker()
 
             # Initialize the class atributes 
-            print('Reading files from disk ...')
+            print('Reading files from storage ...')
             cls._files_reader()
             cls.df_responseTime = cls._df_from_matrix(cls, cls.response_time_matrix)
             cls.df_throughput = cls._df_from_matrix(cls, cls.throughput_matrix)
@@ -218,4 +216,12 @@ class WsdreamDataset(DatasetFactory):
         """
 
         return self.wsdream.services_df
+    
+def load_wsdream():
+    """TODO add docstring
+    """
+    dir = pkg_resources.resource_filename(__name__, 'wsdream/')        
+    return WsdreamDataset(WsdreamReader(dir,builtin=True))
+    
+
     

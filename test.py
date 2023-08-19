@@ -1,11 +1,7 @@
 import serrec_validator
-# from serrec_validator import WsdreamHelper
 from surprise import SVD, SVDpp, NMF, SlopeOne, NormalPredictor, KNNBaseline, KNNBasic, KNNWithMeans, KNNWithMeans, KNNWithZScore, BaselineOnly, CoClustering
 from serrec_validator import EvaluationMetrics
 from surprise import KNNBaseline
-# from serrec_validator.utility import DataSplitter
-# from serrec_validator import ModelEvaluator
-# from serrec_validator.WsdreamHelper import WsdreamDataset
 from serrec_validator.Normalization import *
 from serrec_validator import WsdreamDownloader
 
@@ -22,8 +18,14 @@ from serrec_validator import WsdreamDownloader
 # splits = DataSplitter(dataset, 5, 6)
 
 
-dataset = serrec_validator.WsdreamDataset(serrec_validator.WsdreamReader('work-dir'))
+# dataset = serrec_validator.WsdreamDataset(serrec_validator.WsdreamReader('work-dir'))
+# splits = serrec_validator.DataSplitter(dataset, 5, 6).response_time
+
+dataset = serrec_validator.load_wsdream()
 splits = serrec_validator.DataSplitter(dataset, 5, 6).response_time
+# print(splits.full_trainSet.__doc__)
+
+
 
 
 # print("\nComputing item similarities so we can measure diversity later...")
@@ -101,9 +103,9 @@ splits = serrec_validator.DataSplitter(dataset, 5, 6).response_time
 
 # # wsdream = wsdream_utility.Wsdream()
 # splits = DataSplitter(dataset, density=5)
-# algo = SVD(random_state=10)
+algo = SVD(random_state=10)
 
-# print(ModelEvaluator.evaluate(algo, splits))
+print(serrec_validator.evaluate(algo, splits))
 # ModelEvaluator.evaluate(algo, splits)
 # algos = [SVD(), SVDpp(), SlopeOne(), NMF(), NormalPredictor(), KNNBaseline(), KNNBasic(), KNNWithMeans(), KNNWithZScore(), BaselineOnly(), CoClustering()]
 
