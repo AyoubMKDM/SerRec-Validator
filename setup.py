@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 #TODO add classifiers
 setup(name="serrec_validator",
@@ -6,7 +6,7 @@ setup(name="serrec_validator",
         url='https://github.com/AyoubMKDM/SerRec-Validator',
         description="Simplify, help building, and benchmarking service recommender models",
         long_description=open('README.md').read(),
-        packages=['serrec_validator'],
+        packages=find_packages(where="serrec_validator/"),
         author="Ayoub Mokeddem",
         author_email="ayoubmkdm3@gmail.com",
         install_requires=["numpy",
