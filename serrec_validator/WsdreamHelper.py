@@ -111,15 +111,15 @@ class WsdreamReader:
         """
         Create a CSV file from users_df or services_df DataFrames. and store it in the current directory under the name usersList or servicesList respectively.
         Parameters:
-            listName (str): The name of the list to be saved, acceptable values 'users_df' or 'users_df'
+            listName (str): The name of the list to be saved, acceptable values 'users_df' or 'services_df'
         Return:
             None
         """
-        if listName == 'users_df' or listName == 'users_df':
-            self.users_df.to_csv(listName[:-3] + "List.csv")
+        if listName == 'users_df' or listName == 'services_df':
+            self.users_df.to_csv(listName[:-3] + "List.csv",index=False)
             print(f'"{listName}" is saved to the file "{listName[:-3]}List.csv".')
         else:
-            print('No such attibute with the name "{listName[:-3]}List.csv"')
+            print(f'No such attibute with the name "{listName[:-3]}List.csv"')
 
     @staticmethod
     def dataframe_fromtxt(path : str) -> pd.DataFrame:
