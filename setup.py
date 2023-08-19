@@ -1,12 +1,13 @@
 from setuptools import setup, find_packages
 
-#TODO add classifiers
 setup(name="serrec_validator",
         version="0.1",
         url='https://github.com/AyoubMKDM/SerRec-Validator',
         description="Simplify, help building, and benchmarking service recommender models",
         long_description=open('README.md').read(),
-        packages=find_packages(where="serrec_validator/"),
+        package_dir={"":"serrec_validator"},
+        packages=find_packages(where="serrec_validator"),
+        license='BSD',
         author="Ayoub Mokeddem",
         author_email="ayoubmkdm3@gmail.com",
         install_requires=["numpy",
@@ -26,6 +27,7 @@ setup(name="serrec_validator",
             'Topic :: Scientific/Engineering',
             'Topic :: Scientific/Engineering :: Artificial Intelligence',
             'Topic :: System :: Benchmark',
+            'License :: OSI Approved :: BSD License',
         ],
         python_requires=">=3.8",
         )
