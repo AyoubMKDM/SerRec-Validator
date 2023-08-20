@@ -4,7 +4,7 @@ import numpy as np
 from surprise import Dataset
 from surprise import Reader
 from .utility import DatasetFactory,NormalizationStrategy
-from .Normalization import basic
+from .Normalization import reverse
 from importlib.resources import files
 import errno
 import pkg_resources
@@ -154,11 +154,11 @@ class WsdreamReader:
         return df
 
 class WsdreamDataset(DatasetFactory):
-    def __init__(self, wsdream: WsdreamReader, normalization_strategy: NormalizationStrategy = basic) -> None:
+    def __init__(self, wsdream: WsdreamReader, normalization_strategy: NormalizationStrategy = reverse) -> None:
         self.wsdream = wsdream
         self.normalization_strategy = normalization_strategy
         self._responseTime =  self.normalization_strategy.normalize(self.wsdream.df_responseTime)
-        self._throughput = self.normalization_strategy.normalize(self.wsdream.df_throughput)
+        self._throughput = self.wsdream.df_throughput
 
     def get_responseTime(self, density=100, random_state=6):
         """

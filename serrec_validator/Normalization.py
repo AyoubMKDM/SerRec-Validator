@@ -1,7 +1,7 @@
 from .utility import NormalizationStrategy
 from pandas import DataFrame
 
-class basic(NormalizationStrategy):
+class reverse(NormalizationStrategy):
     @staticmethod
     def normalize(data_df: DataFrame) -> DataFrame:
         max = data_df['Rating'].max()
@@ -28,7 +28,7 @@ class scalingToRange(NormalizationStrategy):
     """
     @staticmethod
     def normalize(data_df: DataFrame) -> DataFrame:
-        data_df = basic.normalize(data_df)
+        data_df = reverse.normalize(data_df)
         min = data_df['Rating'].min()
         max = data_df['Rating'].max()
         data_df['Rating'] = (data_df['Rating'] - min) / (max - min)
@@ -57,7 +57,7 @@ class zScore(NormalizationStrategy):
         mean = data_df['Rating'].mean()
         std = data_df['Rating'].std()
         data_df['Rating'] = (data_df['Rating'] - mean)/std
-        return basic.normalize(data_df)
+        return reverse.normalize(data_df)
 
     
     @staticmethod
