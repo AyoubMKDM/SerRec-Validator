@@ -1,9 +1,10 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(name="serrec_validator",
         version="0.1",
         url='https://github.com/AyoubMKDM/SerRec-Validator',
         description="Simplify, help building, and benchmarking service recommender models",
+        long_description_content_type="text/markdown",
         long_description=open('README.md').read(),
         packages=["serrec_validator"],
         license='BSD',
@@ -12,9 +13,13 @@ setup(name="serrec_validator",
         install_requires=["numpy",
                             "pandas",
                             "surprise"],
+        extras_requires={
+            "dev": ["pytest>=7.0","twine>=4.0.2"],
+        },
         include_package_data=True,
         package_data={'':['wsdream/*.txt']},
         classifiers=[
+            'Development Status :: 3 - Alpha',
             'Programming Language :: Python',
             'Programming Language :: Python :: 3',
             'Programming Language :: Python :: 3.8',

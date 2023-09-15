@@ -29,60 +29,60 @@ $ pip install serrec-validator
 ```
 
 ## Usage
+
 ### Loading the Dataset
+
 To load the WS-DREAM dataset into the framework, use the following Python code:
+
 ```python
 from serrec_validator import Wsdream, WsdreamDataset1Downloader
-
 WsdreamDataset1Downloader.download(dir='dataset')
-
 wsdream_reader = Wsdream.WsdreamReader(dir='dataset')
 wsdream_dataset = Wsdream.WsdreamDataset(wsdream_reader)
 ```
 
 ### Implementing Recommender Models
+
 You can implement recommender models using Surprise algorithms. Here's an example using the SVD algorithm:
+
 ```python
 from surprise import SVD
 from serrec_validator.utility import DataSplitter
-
 splits = DataSplitter(wsdream_z_score, density=20, random_state=6)
 train_set, test_set = splits.response_time.accuracy_splits
-
 algo = SVD(random_state=6)
 algo.fit(train_set)
 ```
 
 ### Evaluating Model Performance
+
 To evaluate model performance, use the evaluation metrics provided by SerRec-Validator:
+
 ```python
 from serrec_validator import EvaluationMetrics
-
 left_out_predictions = algo.test(test_set)
 all_predictions = algo.test(splits.anti_test_set_for_hits)
 top_n_predicted = EvaluationMetrics.get_top_n(all_predictions, n=10)
-
 # Compute Hit Rate
 hit_rate = EvaluationMetrics.hit_rate(top_n_predicted, left_out_predictions)
 print("Hit Rate:", hit_rate)
-
 # Compute Accuracy Metrics
 rmse = EvaluationMetrics.rmse(left_out_predictions)
 mae = EvaluationMetrics.mae(left_out_predictions)
 mse = EvaluationMetrics.mse(left_out_predictions)
-
+#Displaying results
 print("RMSE:", rmse)
 print("MAE:", mae)
 print("MSE:", mse)
-
 # Compute Novelty and Diversity
 novelty = EvaluationMetrics.novelty(top_n_predicted)
 diversity = EvaluationMetrics.diversity(top_n_predicted)
-
+#Displaying results
 print("Novelty:", novelty)
 print("Diversity:", diversity)
 ```
 ## License
+
 This project is licensed under the [BSD3-Clause](https://opensource.org/licenses/BSD-3-Clause) license, so it can be used for pretty much everything, including commercial applications.
 
 I'd love to know how SerRec-Validator is useful to you. Please don't hesitate to open an issue and describe how you use it!
