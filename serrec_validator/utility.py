@@ -1,6 +1,7 @@
 from surprise.model_selection import train_test_split,LeaveOneOut
 from abc import ABC, abstractmethod, abstractstaticmethod
 import pandas as pd
+import numpy as np
 from surprise import Dataset, Trainset
 
 class NormalizationStrategy(ABC):
@@ -15,7 +16,7 @@ class NormalizationStrategy(ABC):
         This method should be overridden by concrete normalization classes to revert normalization of the input data.
     """
     @abstractstaticmethod
-    def normlize(data_df: pd.DataFrame) -> pd.DataFrame:
+    def normlize(data: np.ndarray) -> np.ndarray:
         pass
 
     @abstractstaticmethod

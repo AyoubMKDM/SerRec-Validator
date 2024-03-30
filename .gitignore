@@ -1,5 +1,7 @@
 # Dataset for tests
 work-dir/
+example.ipynb
+
 
 # Byte-compiled / optimized / DLL files
 serrec_validator/__pycache__/

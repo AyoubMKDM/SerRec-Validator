@@ -1,12 +1,13 @@
 from .utility import NormalizationStrategy
 from pandas import DataFrame
+import numpy as np
 
 class reverse(NormalizationStrategy):
     @staticmethod
-    def normalize(data_df: DataFrame) -> DataFrame:
-        max = data_df['Rating'].max()
-        data_df['Rating'] = max - data_df['Rating']
-        return data_df
+    def normalize(data: np.ndarray) -> np.ndarray:
+        max = data.max()
+        data = max - data
+        return data
     
     @staticmethod
     def revert_normalization(data_df: DataFrame) -> DataFrame:
@@ -27,12 +28,11 @@ class scalingToRange(NormalizationStrategy):
 
     """
     @staticmethod
-    def normalize(data_df: DataFrame) -> DataFrame:
-        data_df = reverse.normalize(data_df)
-        min = data_df['Rating'].min()
-        max = data_df['Rating'].max()
-        data_df['Rating'] = (data_df['Rating'] - min) / (max - min)
-        return data_df
+    def normalize(data: np.ndarray) -> np.ndarray:
+        min = np.min(data, axis=1)
+        max = np.max(data, axis=1, where=data>=0)
+        data = (data - min) / (max - min)
+        return data
     
     @staticmethod
     def revert_normalization(data_df: DataFrame) -> DataFrame:
@@ -53,11 +53,13 @@ class zScore(NormalizationStrategy):
 
     """
     @staticmethod
-    def normalize(data_df: DataFrame) -> DataFrame:
-        mean = data_df['Rating'].mean()
-        std = data_df['Rating'].std()
-        data_df['Rating'] = (data_df['Rating'] - mean)/std
-        return reverse.normalize(data_df)
+    def normalize(data: np.ndarray) -> np.ndarray:
+        mean = np.mean(data, axis=1, where=data>=0)
+        mean = mean.reshape(mean.shape[0],1)
+        std = np.std(data, axis=1, where=data>=0)
+        std = std.reshape(std.shape[0],1)
+        data = (data - mean)/std
+        return data
 
     
     @staticmethod
@@ -68,7 +70,7 @@ class zScore(NormalizationStrategy):
 class clipping(NormalizationStrategy):
     # TODO implement this class
     @staticmethod
-    def normalize(data_df: DataFrame) -> DataFrame:
+    def normalize(data_df: np.ndarray) -> np.ndarray:
         pass
 
     @staticmethod
@@ -78,7 +80,7 @@ class clipping(NormalizationStrategy):
 class logScaling(NormalizationStrategy):
     # TODO implement this class
     @staticmethod
-    def normalize(data_df: DataFrame) -> DataFrame:
+    def normalize(data_df: np.ndarray) -> np.ndarray:
         pass
 
     @staticmethod

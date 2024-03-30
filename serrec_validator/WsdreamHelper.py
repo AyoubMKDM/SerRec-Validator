@@ -8,6 +8,11 @@ from .Normalization import reverse
 from importlib.resources import files
 import errno
 import pkg_resources
+import logging
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class WsdreamReader:
@@ -52,8 +57,8 @@ class WsdreamReader:
             # Initialize the class atributes 
             print('Reading files from storage ...')
             cls._files_reader()
-            cls.df_responseTime = cls._df_from_matrix(cls, cls.response_time_matrix)
-            cls.df_throughput = cls._df_from_matrix(cls, cls.throughput_matrix)
+            # cls.df_responseTime = cls.df_from_matrix(cls, cls.response_time_matrix)
+            # cls.df_throughput = cls.df_from_matrix(cls, cls.throughput_matrix)
             # Creating the class
             cls.__instance = super(WsdreamReader, cls).__new__(cls)
             print("\t\t** DONE ** \n The dataset is accessible")
@@ -66,6 +71,7 @@ class WsdreamReader:
         cls.response_time_matrix = np.loadtxt(os.path.join(cls.__dir, cls.__RESPONSE_TIME_MATRIX_FILE_NAME))
         cls.throughput_matrix = np.loadtxt(os.path.join(cls.__dir, cls.__THROUGHPUT_MATRIX_FILE_NAME))  
         cls.services_df['IP No.'].replace("0",value=None,inplace=True) 
+    
     
     @classmethod 
     def _files_checker(cls):
@@ -94,16 +100,16 @@ class WsdreamReader:
                                 \n{os.strerror(errno.ENOENT)}", dir)
             
 
-    def _df_from_matrix(self, matrix):
+    def df_from_matrix(self, matrix):
         # Converting matrix to list
-        list_dataset = self._list_from_matrix(self, matrix)
+        list_dataset = [[i,j,matrix[i][j]] for i in range(matrix.shape[0]) for j in range(matrix.shape[1]) if matrix[i][j] != '-1']
         # Converting list to Pandas DataFrame
-        pd_list = pd.DataFrame(list_dataset,columns=['UsersID', 'ServicesID', 'Rating'])
+        pd_list = pd.DataFrame(list_dataset,columns=['User ID', 'Service ID', 'Rating'])
         return pd_list
 
-    def _list_from_matrix(self, matrix):
-        data_list = [[i,j,matrix[i][j]] for i in range(matrix.shape[0]) for j in range(matrix.shape[1]) if matrix[i][j] != -1]
-        return data_list
+    # def _list_from_matrix(self, matrix):
+    #     data_list = [[i,j,matrix[i][j]] for i in range(matrix.shape[0]) for j in range(matrix.shape[1]) if matrix[i][j] != -1]
+    #     return data_list
 
     def save_list_tocsv(self, listName: str):
         """
@@ -157,26 +163,38 @@ class WsdreamDataset(DatasetFactory):
     def __init__(self, wsdream: WsdreamReader, normalization_strategy: NormalizationStrategy = reverse) -> None:
         self.wsdream = wsdream
         self.normalization_strategy = normalization_strategy
-        self._responseTime =  self.normalization_strategy.normalize(self.wsdream.df_responseTime)
-        self._throughput = self.wsdream.df_throughput
+        # self._responseTime =  self.wsdream.response_time_matrix
+        self._responseTime =  normalization_strategy.normalize(self.wsdream.response_time_matrix)
+        self._responseTime =  reverse.normalize(self._responseTime)
+        self._throughput = self.wsdream.throughput_matrix
+        # self._throughput = self.normalization_strategy.normalize(self.wsdream.throughput_matrix)
+        self._responseTime = wsdream.df_from_matrix(self._responseTime)
+        self._throughput = wsdream.df_from_matrix(self._throughput)
 
     def get_responseTime(self, density=100, random_state=6):
         """
-        Returns ResponseTime in Surprise.Dataset object with whatever density percentage you want from 0 to 100.
+        Returns ResponseTime in Surprise.Dataset object with specified density.
         Parameters:
-            density - int, optional for the density of the data to work with, by default it's 100.
-            random_state - int, optional for the data randomization, used for randomizing lower density data and obtaining consisting results.
+            density : int
+                Density of the data to work with, default value is 100.
+            random_state : int
+                Used for randomizing lower density data and obtaining consistent results.
+        Returns:
+            surprise.dataset.DatasetAutoFolds
         """
-        if density <= 0 or density > 100:
-            raise ValueError("Density must be a percentage value between 1 and 100.")
-        frac = density/100
-        copy = pd.DataFrame.sample(self._responseTime, frac=frac, random_state=random_state, ignore_index=True)
-        # Converting Dataframe to surprise Dataset object
-        min = int(self._responseTime.Rating.min()) - 1
-        max = int(self._responseTime.Rating.max()) + 1
-        reader = Reader(rating_scale=(min, max))
-        data = Dataset.load_from_df(copy, reader)
-        return data
+        try:
+            frac = density/100
+            #Reversing data
+            max = int(self._responseTime.Rating.max() + 1)
+            min = int(self._responseTime.Rating.min() - 1)
+            sample = self._responseTime.sample(frac=frac, random_state=random_state, ignore_index=True)
+            reader =  Reader(rating_scale=(min, max))
+            # Convert DataFrame to surprise Dataset object
+            data = Dataset.load_from_df(sample, reader)
+            return data
+        except Exception as e:
+            logger.error('Failed to get response time. Error: %s', e)
+            raise
         
     def get_throughput(self, density=100, random_state=6):
         """
