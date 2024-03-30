@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class WsdreamReader:
+class WsdreamLoader:
     """
     Singleton class that reads the dataset with the different tables from the hard drive and makes 
     them available as Python data structures that are easy to manipulate.
@@ -60,7 +60,7 @@ class WsdreamReader:
             # cls.df_responseTime = cls.df_from_matrix(cls, cls.response_time_matrix)
             # cls.df_throughput = cls.df_from_matrix(cls, cls.throughput_matrix)
             # Creating the class
-            cls.__instance = super(WsdreamReader, cls).__new__(cls)
+            cls.__instance = super(WsdreamLoader, cls).__new__(cls)
             print("\t\t** DONE ** \n The dataset is accessible")
         return cls.__instance 
 
@@ -160,7 +160,7 @@ class WsdreamReader:
         return df
 
 class WsdreamDataset(DatasetFactory):
-    def __init__(self, wsdream: WsdreamReader, normalization_strategy: NormalizationStrategy = reverse) -> None:
+    def __init__(self, wsdream: WsdreamLoader, normalization_strategy: NormalizationStrategy = reverse) -> None:
         self.wsdream = wsdream
         self.normalization_strategy = normalization_strategy
         # self._responseTime =  self.wsdream.response_time_matrix
@@ -239,7 +239,7 @@ def load_wsdream():
     """TODO add docstring
     """
     dir = pkg_resources.resource_filename(__name__, 'wsdream/')        
-    return WsdreamDataset(WsdreamReader(dir,builtin=True))
+    return WsdreamDataset(WsdreamLoader(dir,builtin=True))
     
 
     
