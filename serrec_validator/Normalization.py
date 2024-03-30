@@ -29,8 +29,10 @@ class scalingToRange(NormalizationStrategy):
     """
     @staticmethod
     def normalize(data: np.ndarray) -> np.ndarray:
-        min = np.min(data, axis=1)
-        max = np.max(data, axis=1, where=data>=0)
+        min = np.min(data, axis=1, where=data>=0, initial=2)
+        min = min.reshape(min.shape[0],1)
+        max = np.max(data, axis=1)
+        max = max.reshape(max.shape[0],1)
         data = (data - min) / (max - min)
         return data
     
