@@ -70,7 +70,7 @@ class WsdreamLoader:
         cls.services_df = cls.dataframe_fromtxt(path=os.path.join(cls.__dir, cls.__SERVICES_LIST_FILE_NAME))
         cls.response_time_matrix = np.loadtxt(os.path.join(cls.__dir, cls.__RESPONSE_TIME_MATRIX_FILE_NAME))
         cls.throughput_matrix = np.loadtxt(os.path.join(cls.__dir, cls.__THROUGHPUT_MATRIX_FILE_NAME))  
-        cls.services_df['IP No.'].replace("0",value=None,inplace=True) 
+        cls.services_df['IP No.'].replace("0",value=pd.NA,inplace=True) 
     
     
     @classmethod 
@@ -229,7 +229,7 @@ class WsdreamDataset(DatasetFactory):
                         'Latitude': float,
                         'Longitude': float
                         }
-        users = users.astype(convert_dict, errors='ignore')
+        users = users.astype(convert_dict)
 
         return users
     
@@ -244,11 +244,11 @@ class WsdreamDataset(DatasetFactory):
         # Casting dictionary
         services = self.wsdream.services_df
         convert_dict = {'Service ID': int,
-                        'IP No.': int,
+                        'IP No.': pd.Int64Dtype(),
                         'Latitude': float,
                         'Longitude': float
                         }
-        services = services.astype(convert_dict, errors='ignore')
+        services = services.astype(convert_dict)
         return services
     
 def load_wsdream():
