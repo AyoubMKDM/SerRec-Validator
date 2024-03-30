@@ -222,7 +222,16 @@ class WsdreamDataset(DatasetFactory):
             A pandas DataFrame with columns 'User ID', 'IP Address, 'Country', 'IP No.', 'AS',
                 'Latitude', and 'Longitude' containing information about the users in the Wsdream dataset1.
         """
-        return self.wsdream.users_df
+        users = self.wsdream.users_df
+        # Casting dictionary
+        convert_dict = {'User ID': int,
+                        'IP No.': int,
+                        'Latitude': float,
+                        'Longitude': float
+                        }
+        users = users.astype(convert_dict)
+
+        return users
     
     def get_services(self) -> pd.DataFrame:
         """
@@ -232,8 +241,15 @@ class WsdreamDataset(DatasetFactory):
             A pandas DataFrame with columns 'Service ID', 'WSDL Address', 'Service Provider', 'IP Address', 
                 'Country', 'IP No.', 'AS', 'Latitude', 'Longitude' containing information about the services in the Wsdream dataset1.
         """
-
-        return self.wsdream.services_df
+        # Casting dictionary
+        services = self.wsdream.services_df
+        convert_dict = {'Service ID': int,
+                        'IP No.': int,
+                        'Latitude': float,
+                        'Longitude': float
+                        }
+        services = services.astype(convert_dict)
+        return services
     
 def load_wsdream():
     """TODO add docstring
