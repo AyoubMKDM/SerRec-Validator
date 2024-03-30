@@ -229,7 +229,7 @@ class WsdreamDataset(DatasetFactory):
                         'Latitude': float,
                         'Longitude': float
                         }
-        users = users.astype(convert_dict)
+        users = users.astype(convert_dict, errors='ignore')
 
         return users
     
@@ -248,7 +248,7 @@ class WsdreamDataset(DatasetFactory):
                         'Latitude': float,
                         'Longitude': float
                         }
-        services = services.astype(convert_dict)
+        services = services.astype(convert_dict, errors='ignore')
         return services
     
 def load_wsdream():
