@@ -1,6 +1,8 @@
 # Dataset for tests
 work-dir/
-example.ipynb
+tmp/
+wsdream_dataset1/
+catboost_info/
 
 
 # Byte-compiled / optimized / DLL files
@@ -83,6 +85,9 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+Experiments.ipynb
+example.ipynb
+
 
 # IPython
 profile_default/

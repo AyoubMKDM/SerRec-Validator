@@ -167,7 +167,7 @@ class WsdreamDataset(DatasetFactory):
         self._responseTime =  normalization_strategy.normalize(self.wsdream.response_time_matrix)
         self._responseTime =  reverse.normalize(self._responseTime)
         self._throughput = self.wsdream.throughput_matrix
-        # self._throughput = self.normalization_strategy.normalize(self.wsdream.throughput_matrix)
+        self._throughput = self.normalization_strategy.normalize(self.wsdream.throughput_matrix)
         self._responseTime = wsdream.df_from_matrix(self._responseTime)
         self._throughput = wsdream.df_from_matrix(self._throughput)
 
