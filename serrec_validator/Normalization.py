@@ -56,6 +56,30 @@ class zScore(NormalizationStrategy):
     """
     @staticmethod
     def normalize(data: np.ndarray) -> np.ndarray:
+        data = (data - data.mean)/data.std
+        return data
+
+    
+    @staticmethod
+    def revert_normalization(data_df: DataFrame) -> DataFrame:
+        # TODO implement this method to revert the normalization on recommendation results
+        pass
+
+class modified_zScore(NormalizationStrategy):
+    """
+    This class implements a normalization strategy for a Pandas DataFrame with a 'Rating' column. The method 
+    scales each rating value in the 'Rating' column to a z-score.
+
+    Methods:
+        normalize(data_df: DataFrame) -> DataFrame:
+            Normalize the 'Rating' column of the input DataFrame using the z-score normalization.
+
+        revert_normalization(data_df: DataFrame) -> None:
+            This method reverts the normalization on recommendation results, to get the real rating values.
+
+    """
+    @staticmethod
+    def normalize(data: np.ndarray) -> np.ndarray:
         mean = np.mean(data, axis=1, where=data>=0)
         mean = mean.reshape(mean.shape[0],1)
         std = np.std(data, axis=1, where=data>=0)
