@@ -50,8 +50,8 @@ class DatasetFactory(ABC):
         pass
 
 def getPopularityRanks(data_df, max_value):
-  service_popularity_df = data_df.groupby('ServicesID')['Rating'].sum().sort_values(ascending=False).reset_index()
-  rankings = service_popularity_df.set_index('ServicesID') / max_value
+  service_popularity_df = data_df.groupby('Service ID')['Rating'].sum().sort_values(ascending=False).reset_index()
+  rankings = service_popularity_df.set_index('Service ID') / max_value
 
   return rankings.to_dict()['Rating']
 
