@@ -25,7 +25,7 @@ SerRec-Validator comes with a variety of features to streamline the evaluation p
 To install SerRec-Validator, use the following command:
 
 ```bash
-$ pip install serrec-validator
+$ pip install -i https://test.pypi.org/simple/serrec-validator
 ```
 
 ## Usage
@@ -89,14 +89,3 @@ I'd love to know how SerRec-Validator is useful to you. Please don't hesitate to
 
 
 We welcome contributions and feedback from the community to further improve and expand the functionality of SerRec-Validator. Together, we can enhance the evaluation of service recommendations and contribute to the advancement of this vital research field.
-
-
-
-
-
-
-
-
-
-
-
