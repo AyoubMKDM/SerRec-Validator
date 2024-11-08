@@ -3,6 +3,7 @@ work-dir/
 tmp/
 wsdream_dataset1/
 catboost_info/
+*.pkl
 
 
 # Byte-compiled / optimized / DLL files
