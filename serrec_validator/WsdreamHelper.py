@@ -59,43 +59,83 @@ class WsdreamLoader:
             # Initialize the class atributes 
             print('Reading files from storage ...')
             cls._files_reader()
-            # cls.df_responseTime = cls.df_from_matrix(cls, cls.response_time_matrix)
-            # cls.df_throughput = cls.df_from_matrix(cls, cls.throughput_matrix)
+            
             # Creating the class
             cls.__instance = super(WsdreamLoader, cls).__new__(cls)
             print("\t\t** DONE ** \n The dataset is accessible")
         return cls.__instance 
     
+    #  @classmethod
+    # def _files_checker(cls):
+    #     # Check if the data files exist in the package
+    #     try:
+    #         cls._get_resource_path(cls.FILES['USERS_LIST'])
+    #         cls._get_resource_path(cls.FILES['SERVICES_LIST'])
+    #         cls._get_resource_path(cls.FILES['RESPONSE_TIME_MATRIX'])
+    #         cls._get_resource_path(cls.FILES['THROUGHPUT_MATRIX'])
+    #     except FileNotFoundError as e:
+    #         cls._raise_FileNotFoundError(e)
+    
+    
+    # @classmethod 
+    # def _files_checker(cls):
+    #     full_path = os.path.join(os.getcwd(), cls.__dir)
+    #     # Check if the directory exists
+    #     if not os.path.exists(full_path):
+    #         cls._raise_FileNotFoundError(full_path)
+    #     else:
+    #         ls = os.listdir(full_path)
+    #         # Check for each file in the dataset
+    #         for file_key, file_name in cls.FILES.items():
+    #             if file_name not in ls:
+    #                 cls._raise_FileNotFoundError(os.path.join(full_path, file_name))
+
+    # @classmethod
+    # def _raise_FileNotFoundError(cls, dir:str):
+    #     print('')
+    #     raise FileNotFoundError(errno.ENOENT, 
+    #                             f"File not found \
+    #                             \nYou need to download the dataset first: \n\t>>> path = WsdreamDataset1Downloader.download(\'<The folder where to save the dataset>\')\
+    #                             \n{os.strerror(errno.ENOENT)}", dir)
+            
     @classmethod
     def _files_reader(cls):
-        cls.users_df = cls.dataframe_fromtxt(path=os.path.join(cls.__dir, cls.FILES['USERS_LIST']))
-        cls.services_df = cls.dataframe_fromtxt(path=os.path.join(cls.__dir, cls.FILES['SERVICES_LIST']))
-        cls.response_time_matrix = np.loadtxt(os.path.join(cls.__dir, cls.FILES['RESPONSE_TIME_MATRIX']))
-        cls.throughput_matrix = np.loadtxt(os.path.join(cls.__dir, cls.FILES['THROUGHPUT_MATRIX']))  
-        cls.services_df['IP No.'].replace("0",value=pd.NA,inplace=True) 
-    
-    
-    @classmethod 
-    def _files_checker(cls):
-        full_path = os.path.join(os.getcwd(), cls.__dir)
-        # Check if the directory exists
-        if not os.path.exists(full_path):
-            cls._raise_FileNotFoundError(full_path)
-        else:
-            ls = os.listdir(full_path)
-            # Check for each file in the dataset
-            for file_key, file_name in cls.FILES.items():
-                if file_name not in ls:
-                    cls._raise_FileNotFoundError(os.path.join(full_path, file_name))
+        # Use pkg_resources to access the dataset files from the package or resource folder
+        cls.users_df = cls.dataframe_fromtxt(cls._get_resource_path(cls.FILES['USERS_LIST']))
+        cls.services_df = cls.dataframe_fromtxt(cls._get_resource_path(cls.FILES['SERVICES_LIST']))
+        cls.response_time_matrix = np.loadtxt(cls._get_resource_path(cls.FILES['RESPONSE_TIME_MATRIX']))
+        cls.throughput_matrix = np.loadtxt(cls._get_resource_path(cls.FILES['THROUGHPUT_MATRIX']))
+        cls.services_df['IP No.'].replace("0", value=pd.NA, inplace=True)
 
     @classmethod
-    def _raise_FileNotFoundError(cls, dir:str):
-        print('')
-        raise FileNotFoundError(errno.ENOENT, 
-                                f"File not found \
-                                \nYou need to download the dataset first: \n\t>>> path = WsdreamDataset1Downloader.download(\'<The folder where to save the dataset>\')\
-                                \n{os.strerror(errno.ENOENT)}", dir)
-            
+    def _files_checker(cls):
+        # Check if the data files exist in the package
+        try:
+            cls._get_resource_path(cls.FILES['USERS_LIST'])
+            cls._get_resource_path(cls.FILES['SERVICES_LIST'])
+            cls._get_resource_path(cls.FILES['RESPONSE_TIME_MATRIX'])
+            cls._get_resource_path(cls.FILES['THROUGHPUT_MATRIX'])
+        except FileNotFoundError as e:
+            cls._raise_FileNotFoundError(e)
+
+    @staticmethod
+    def _get_resource_path(filename):
+        """Fetch the resource path for files bundled in the package."""
+        try:
+            # pkg_resources.resource_filename gives the full path to the resource
+            resource_path = pkg_resources.resource_filename(
+                __name__, f'wsdream/{filename}'  # Adjust the subfolder as necessary
+            )
+            if not os.path.exists(resource_path):
+                raise FileNotFoundError(f"Resource {filename} not found.")
+            return resource_path
+        except Exception as e:
+            raise FileNotFoundError(f"Error accessing resource {filename}: {str(e)}")
+
+    @classmethod
+    def _raise_FileNotFoundError(cls, error):
+        print(f"Error: {str(error)}")
+        raise error
 
     def df_from_matrix(self, matrix):
         """

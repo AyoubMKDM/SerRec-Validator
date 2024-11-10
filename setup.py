@@ -1,9 +1,9 @@
 from setuptools import setup
 
 setup(name="serrec_validator",
-        version="0.1",
+        version="0.1.0",
         url='https://github.com/AyoubMKDM/SerRec-Validator',
-        description="Simplify, help building, and benchmarking service recommender models",
+        description="A framework for service recommendation evaluation using the WS-DREAM dataset",
         long_description_content_type="text/markdown",
         long_description=open('README.md').read(),
         packages=["serrec_validator"],
@@ -12,12 +12,12 @@ setup(name="serrec_validator",
         author_email="ayoubmkdm3@gmail.com",
         install_requires=["numpy",
                             "pandas",
-                            "surprise"],
+                            "scikit-surprise"],
         extras_requires={
             "dev": ["pytest>=7.0","twine>=4.0.2"],
         },
         include_package_data=True,
-        package_data={'':['wsdream/*.txt']},
+        package_data={'serrec_validator':['wsdream/*.txt']},
         classifiers=[
             'Development Status :: 3 - Alpha',
             'Programming Language :: Python',
