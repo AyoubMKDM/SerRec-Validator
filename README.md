@@ -35,7 +35,7 @@ $ pip install -i https://test.pypi.org/simple/serrec-validator
 Alternatively, follow these steps to install from the source:
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/serrec-validator.git
+   git clone https://github.com/AyoubMKDM/serrec-validator.git
    cd serrec-validator
    ```
 2. Install the required dependencies:
