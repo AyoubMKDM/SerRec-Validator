@@ -4,140 +4,214 @@ from surprise import AlgoBase
 from functools import singledispatch
 from tabulate import tabulate
 import pandas as pd
+from typing import List, Tuple, Dict
 
-# TODO implement the verbose functionality on all the methods
-# TODO add docstrings 
+
 def evaluate(algo: AlgoBase, splits: DataSplitter,
              metrics: list = ['RMSE', 'MAE', 'HR', 'ARHR', 'CHR', 'Coverage', 'Diversity', 'Novelty'],
              verbose: bool = True,
-             k:int = 10):
-    evaluation_dict = dict()
-    trainSet, testSet = splits.accuracy_splits
+             k:int = 10) -> Dict[str, float]:
+    """Evaluates a model on given metrics.
+
+    Args:
+        algo (AlgoBase): The recommendation algorithm to evaluate.
+        splits (DataSplitter): The DataSplitter object providing train and test sets.
+        metrics (List[str], optional): List of metrics for evaluation. Defaults to common metrics.
+        verbose (bool, optional): If True, print progress and results. Defaults to True.
+        k (int, optional): Number of top predictions for hit rate metrics. Defaults to 10.
+
+    Returns:
+        Dict[str, float]: Dictionary of evaluation metrics and their computed values.
+    """
+    if metrics is None:
+        metrics = ['RMSE', 'MAE', 'HR', 'ARHR', 'CHR', 'Coverage', 'Diversity', 'Novelty']
+    
+    evaluation_dict = {}
+    train_set, test_set = splits.accuracy_splits
+
     if verbose:
-        print('Training the model ...')
-    algo.fit(trainSet)
-    predictions = algo.test(testSet)
+        print('Training the model...')
+    algo.fit(train_set)
+    
     if verbose:
-        print('Evaluating accuracy ...')
+        print('Generating predictions...')
+    predictions = algo.test(test_set)
+
+    if verbose:
+        print('Evaluating accuracy metrics...')
     for metric in metrics:
-        if metric.lower() == 'rmse':
-            evaluation_dict[metric] = EvaluationMetrics.RMSE(predictions, verbose=False)
-        elif metric.lower() == 'mae':
-            evaluation_dict[metric] = EvaluationMetrics.MAE(predictions, verbose=False)
-        elif metric.lower() == 'mse':
-            evaluation_dict[metric] = EvaluationMetrics.MSE(predictions, verbose=False)
-    # Hit rate splitting and computation take some time it would be helpful to
-    # skip it if not necessary
+        metric = metric.lower()
+        if metric == 'rmse':
+            evaluation_dict['RMSE'] = EvaluationMetrics.RMSE(predictions, verbose=verbose)
+        elif metric == 'mae':
+            evaluation_dict['MAE'] = EvaluationMetrics.MAE(predictions, verbose=verbose)
+        elif metric == 'mse':
+            evaluation_dict['MSE'] = EvaluationMetrics.MSE(predictions, verbose=verbose)
+    
+    if any(m.lower() in ['hr', 'arhr', 'chr'] for m in metrics):
+        if verbose:
+            print('Evaluating hit rate metrics...')
+        evaluation_dict.update(_hit_rate_evaluation(algo, splits, k, metrics, verbose= verbose))
+
     if verbose:
-        print('Evaluating Hits ...')
-    if ('hr' in x for x in metrics):
-        dic = _hit_rate_evaluation(algo, splits, k=k)
-        evaluation_dict.update(dic)
-    if verbose:
-        print('Results:')
-        for key in evaluation_dict.keys():
-            print(f'{key} \t {evaluation_dict[key]:.4f}')
+        print('Evaluation Results:')
+        for key, value in evaluation_dict.items():
+            print(f'{key}: {value:.4f}')
     return evaluation_dict
+
 
 def _hit_rate_evaluation(algo: AlgoBase, splits: DataSplitter, k: int,
-                         metrics: list = ['RMSE', 'MAE', 'HR', 'ARHR', 'CHR', 'Coverage', 'Diversity', 'Novelty']):
-    evaluation_dict = dict()
-    trainSet, testSet = splits.hit_splits
-    bigTestSet = splits.anti_testSet_for_hits
-    algo.fit(trainSet)
-    predictions = algo.test(testSet)
-    allPredictions = algo.test(bigTestSet)
-    topNPredicted = EvaluationMetrics.get_top_n(allPredictions, n=k)
+                         metrics: list = ['RMSE', 'MAE', 'HR', 'ARHR', 'CHR', 'Coverage', 'Diversity', 'Novelty'], 
+                         verbose: bool = False) -> Dict[str, float]:
+    """Calculates hit rate-related metrics for the model.
+
+    Args:
+        algo (AlgoBase): The algorithm for recommendation.
+        splits (DataSplitter): DataSplitter object providing train and test sets.
+        k (int): Number of top predictions for hit rate metrics.
+        metrics (List[str]): List of metrics to calculate.
+
+    Returns:
+        Dict[str, float]: Dictionary of hit rate metrics and their computed values.
+    """
+    evaluation_dict = {}
+    train_set, test_set = splits.hit_splits
+    big_test_set = splits.anti_testSet_for_hits
+    
+    algo.fit(train_set)
+    predictions = algo.test(test_set)
+    all_predictions = algo.test(big_test_set)
+    top_n_predictions = EvaluationMetrics.get_top_n(all_predictions, n=k)
+    
     for metric in metrics:
-        if metric.lower() == 'hr':
-            evaluation_dict[metric] = EvaluationMetrics.hit_rate(topNPredicted, predictions, verbose=False)
-        elif metric.lower() == 'arhr':
-            evaluation_dict[metric] = EvaluationMetrics.average_reciprocal_hit_rank(topNPredicted, predictions,
-                                                                                     verbose=False)
-        elif metric.lower() == 'chr':
-            evaluation_dict[metric] = EvaluationMetrics.cumulative_hit_rate(topNPredicted, predictions, verbose=False)
+        metric = metric.lower()
+        if metric == 'hr':
+            evaluation_dict['HR'] = EvaluationMetrics.hit_rate(top_n_predictions, predictions, verbose= verbose)
+        elif metric == 'arhr':
+            evaluation_dict['ARHR'] = EvaluationMetrics.average_reciprocal_hit_rank(top_n_predictions, predictions, verbose= verbose)
+        elif metric == 'chr':
+            evaluation_dict['CHR'] = EvaluationMetrics.cumulative_hit_rate(top_n_predictions, predictions, verbose= verbose)
     return evaluation_dict
 
- # TODO if densities is empty
-def benchmark(algos: list, dataset: DatasetFactory, k : int = 10,
-                         ignore_response_time: bool = False, ignore_throuput: bool = False, random_state: int = 6,
-                         densities: list = [10, 20, 30],
-                         metrics: list[str] = ['RMSE', 'MAE', 'HR', 'ARHR', 'CHR'], verbose: bool = True):
-    results = dict()
-    # creating the different data splits
-    splits = [DataSplitter(dataset, item, random_state) for item in densities]
-    # evaluate the models
+def benchmark(
+    algos: List[AlgoBase],
+    dataset: DatasetFactory,
+    k: int = 10,
+    ignore_response_time: bool = False,
+    ignore_throughput: bool = False,
+    random_state: int = 6,
+    densities: List[int] = None,
+    metrics: List[str] = None,
+    verbose: bool = True
+) -> Dict[str, dict]:
+    """Benchmarks multiple models on a dataset across different densities.
+
+    Args:
+        algos (List[AlgoBase]): List of algorithms to benchmark.
+        dataset (DatasetFactory): The dataset to use for benchmarking.
+        k (int, optional): Number of top predictions for hit rate metrics. Defaults to 10.
+        ignore_response_time (bool, optional): If True, ignore response time evaluation. Defaults to False.
+        ignore_throughput (bool, optional): If True, ignore throughput evaluation. Defaults to False.
+        random_state (int, optional): Random state for reproducibility. Defaults to 6.
+        densities (List[int], optional): List of densities to evaluate. Defaults to [10, 20, 30].
+        metrics (List[str], optional): Metrics to evaluate. Defaults to common metrics.
+        verbose (bool, optional): If True, print progress and results. Defaults to True.
+
+    Returns:
+        Dict[str, dict]: Dictionary of results for each model and density.
+    """
+    if densities is None:
+        densities = [10, 20, 30]
+    if metrics is None:
+        metrics = ['RMSE', 'MAE', 'HR', 'ARHR', 'CHR']
+
+    results = {}
+    splits = [DataSplitter(dataset, density, random_state) for density in densities]
+
     for data, density in zip(splits, densities):
         if not ignore_response_time:
             if verbose:
-                print(f'Training the different models on the response time data with the density {density}%')
-            results[f"response time {density}%"] = compare(algos, data.response_time, k, metrics, verbose=verbose)
-        if not ignore_throuput:
+                print(f'Training models on response time data with {density}% density')
+            results[f"Response Time {density}%"] = compare(algos, data.response_time, k, metrics, verbose=verbose)
+        
+        if not ignore_throughput:
             if verbose:
-                print(f'Training the different models on the throughput data with the density {density}%')
-            results[f"throughput {density}%"] = compare(algos, data.throughput, k, metrics, verbose=verbose)
+                print(f'Training models on throughput data with {density}% density')
+            results[f"Throughput {density}%"] = compare(algos, data.throughput, k, metrics, verbose=verbose)
+
     return results
 
 @singledispatch
 def compare(algos: any, data: DataSplitter, k: int = 10, metrics: list[str] = ['RMSE', 'MAE', 'HR', 'ARHR', 'CHR'],
             verbose: bool = True) -> dict:
-    # TODO write and detialed error message
-    raise NotImplementedError("Unsupported type")
+        """Compares multiple algorithms on a dataset split.
+
+        Args:
+            algos (Union[list, dict]): List or dictionary of algorithms to compare.
+            data (DataSplitter): DataSplitter object with training and testing splits.
+            k (int, optional): Number of top predictions for hit rate metrics. Defaults to 10.
+            metrics (List[str], optional): Metrics to evaluate. Defaults to common metrics.
+            verbose (bool, optional): If True, print progress and results. Defaults to True.
+
+        Raises:
+            NotImplementedError: If the algos parameter is neither a list nor a dictionary.
+        """
+        raise NotImplementedError("The provided algorithms must be a list or dictionary.")
 
 @compare.register(list)
-def _(algos: list, data: DataSplitter, k: int = 10, metrics: list[str] = ['RMSE', 'MAE', 'HR', 'ARHR', 'CHR'],
-      verbose: bool = True) -> dict:
-    algos_dictionary = dict()
-    if not isinstance(algos[0], AlgoBase):
-        raise TypeError("Unsupported type: you should pass a dictionary with AlgoBase models")
-    # Naming the models
+def _(algos: list, data: DataSplitter, k: int = 10, metrics: List[str] = None, verbose: bool = True) -> dict:
+    if metrics is None:
+        metrics = ['RMSE', 'MAE', 'HR', 'ARHR', 'CHR']
+    
+    algos_dict = {}
     for model in algos:
-        last_index = 0
+        if not isinstance(model, AlgoBase):
+            raise TypeError("The algorithms list must contain only AlgoBase instances.")
         model_name = __get_model_name(model)
-        if model_name in algos_dictionary.keys():
-            for key in algos_dictionary.keys():
-                # Check if the model name already available if so add a number to
-                # the model name
-                if key.find(model_name) > -1:
-                    if key.find('_') > -1:
-                        if (last_index < int(key.split("_")[1])):
-                            last_index = int(key.split("_")[1])
-            model_name += "_" + str(last_index + 1)
-        algos_dictionary[model_name] = model
-    results = compare(algos_dictionary, data=data, metrics=metrics, verbose=verbose)
-    return results
+        
+        # Ensure unique naming for duplicate models
+        suffix = 1
+        while model_name in algos_dict:
+            model_name = f"{model_name}_{suffix}"
+            suffix += 1
+        
+        algos_dict[model_name] = model
+
+    return compare(algos_dict, data=data, k=k, metrics=metrics, verbose=verbose)
+
 
 @compare.register(dict)
-def _(algos: dict, data: DataSplitter, k: int = 10, metrics: list[str] = ['RMSE', 'MAE', 'HR', 'ARHR', 'CHR'],
-      verbose: bool = True) -> dict:
-    results = dict()
-    # evaluate the models
-    for model_name in algos.keys():
-        model = algos[model_name]
-        if isinstance(model, AlgoBase):
-            if verbose:
-                print(f'Evaluating {model_name}')
-            results[model_name] = evaluate(algo=model, k=k, splits=data, metrics=metrics, verbose=verbose)
-        else:
-            raise TypeError("Unsupported type: you should pass a dictionary with AlgoBase models")
+def _(algos: dict, data: DataSplitter, k: int = 10, metrics: List[str] = None, verbose: bool = True) -> dict:
+    if metrics is None:
+        metrics = ['RMSE', 'MAE', 'HR', 'ARHR', 'CHR']
+    
+    results = {}
+    for model_name, model in algos.items():
+        if not isinstance(model, AlgoBase):
+            raise TypeError("All models must be instances of AlgoBase.")
+        if verbose:
+            print(f'Evaluating {model_name}...')
+        results[model_name] = evaluate(algo=model, splits=data, metrics=metrics, verbose=verbose, k=k)
+
     if verbose:
-        display_results(results=results, metrics=metrics)
+        display_results(results, metrics)
     return results
+
 
 # This private method take a model as a parameter and returns its name
 def __get_model_name(algo: AlgoBase):
-    name = str(algo).split('object')[0]
-    name = name.split('.')[-1]
-    return name
+    # name = str(algo).split('object')[0]
+    # name = name.split('.')[-1]
+    # return name
+    return algo.__class__.__name__
 
-def display_results(results: dict, metrics: list) -> None:
-    content = {'model_name': []}
-    for metric in metrics:
-        content[metric] = []
-    for model_name in results.keys():
-        content['model_name'].append(model_name)
-        for metric in metrics:
-            content[metric].append(results[model_name][metric])
-    df = pd.DataFrame(data=content)
-    print('Results summary:')
-    print(tabulate(df, headers='keys', tablefmt='fancy_grid'))
+def display_results(results: Dict[str, dict], metrics: List[str]) -> None:
+    """Displays the results of model evaluations in a table format.
+
+    Args:
+        results (Dict[str, dict]): Dictionary containing model names and their respective metric results.
+        metrics (List[str]): List of metrics for which results are available.
+    """
+    headers = ["Model"] + metrics
+    table_data = [[model] + [round(results[model][metric], 4) for metric in metrics] for model in results.keys()]
+    print(tabulate(table_data, headers=headers, tablefmt="pipe"))
