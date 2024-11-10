@@ -221,9 +221,6 @@ The following tables summarize the performance of different recommendation model
 | BaselineOnly  | 1.4934 | 0.6684 | 0.3526    | 0.2631    | 0.0041    |
 | KNNBasic      | 1.4897 | 0.4896 | **0.6524**    | **0.3585**    | **0.0357**    |
 
-These results demonstrate the effectiveness of various recommendation algorithms under different data densities. The optimized models reveal improvements in several metrics, such as RMSE and MAE, while also showing distinct characteristics in novelty, diversity, and coverage. For more details on the optimization process and the implications of these findings, refer to the accompanying research paper.    | 0.0041    |
-| KNNBasic      | 1.4897 | 0.4896 | **0.6524**    | **0.3585**    | **0.0357**    |
-
 These results demonstrate the effectiveness of various recommendation algorithms under different data densities. The optimized models reveal improvements in several metrics, such as RMSE and MAE, while also showing distinct characteristics in novelty, diversity, and coverage. For more details on the optimization process and the implications of these findings, refer to the accompanying research paper.
 
 ## Acknowledgements
