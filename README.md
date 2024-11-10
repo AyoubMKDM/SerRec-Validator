@@ -186,7 +186,47 @@ SerRec-Validator provides several normalization strategies to ensure that your d
   * `Normalization`: Contains methods to normalize the dataset and the response times for better model performance.
   * `EvaluationMetrics`: Computes various metrics like novelty, diversity, and accuracy for evaluating the recommendation models.
 
-### Acknowledgements
+  
+## Results
+
+The following tables summarize the performance of different recommendation models on the WS-DREAM dataset across three data density levels: 10%, 20%, and 30%. Key evaluation metrics include RMSE, MAE, Diversity, Novelty, and Coverage.
+
+### 10% Data Density
+
+| Model         | RMSE   | MAE    | Diversity | Novelty   | Coverage  |
+|---------------|--------|--------|-----------|-----------|-----------|
+| SlopeOne      | 1.5126 | 0.6898 | 0.3336    | 0.1507    | 0.0033    |
+| SVD           | **1.4227** | 0.5626 | 0.3505    | 0.0950    | **0.0167**    |
+| KNNBaseline   | 1.5127 | **0.5603** | 0.3511    | **0.1538**    | 0.0156    |
+| BaselineOnly  | 1.5391 | 0.6812 | 0.2509    | 0.1225    | 0.0027    |
+| KNNBasic      | 1.9632 | 0.9745 | **0.9903**    | 0.0391    | 0.0062    |
+
+### 20% Data Density
+
+| Model         | RMSE   | MAE    | Diversity | Novelty   | Coverage  |
+|---------------|--------|--------|-----------|-----------|-----------|
+| SlopeOne      | 1.4574 | 0.6663 | 0.3659    | **0.1953**    | 0.0034    |
+| SVD           | **1.2839** | 0.5045 | 0.3693    | 0.1382    | 0.0172    |
+| KNNBaseline   | 1.3347 | **0.4832** | 0.3418    | 0.1644    | 0.0155    |
+| BaselineOnly  | 1.4614 | 0.6621 | 0.3664    | 0.1662    | 0.0034    |
+| KNNBasic      | 1.5121 | 0.5040 | **0.6756**    | 0.1694    | **0.0312**    |
+
+### 30% Data Density
+
+| Model         | RMSE   | MAE    | Diversity | Novelty   | Coverage  |
+|---------------|--------|--------|-----------|-----------|-----------|
+| SlopeOne      | 1.4915 | 0.6679 | 0.3526    | 0.2794    | 0.0043    |
+| SVD           | **1.2763** | 0.4860 | 0.3941    | 0.2970    | 0.0240    |
+| KNNBaseline   | 1.3387 | **0.4617** | 0.3224    | 0.3419    | 0.0167    |
+| BaselineOnly  | 1.4934 | 0.6684 | 0.3526    | 0.2631    | 0.0041    |
+| KNNBasic      | 1.4897 | 0.4896 | **0.6524**    | **0.3585**    | **0.0357**    |
+
+These results demonstrate the effectiveness of various recommendation algorithms under different data densities. The optimized models reveal improvements in several metrics, such as RMSE and MAE, while also showing distinct characteristics in novelty, diversity, and coverage. For more details on the optimization process and the implications of these findings, refer to the accompanying research paper.    | 0.0041    |
+| KNNBasic      | 1.4897 | 0.4896 | **0.6524**    | **0.3585**    | **0.0357**    |
+
+These results demonstrate the effectiveness of various recommendation algorithms under different data densities. The optimized models reveal improvements in several metrics, such as RMSE and MAE, while also showing distinct characteristics in novelty, diversity, and coverage. For more details on the optimization process and the implications of these findings, refer to the accompanying research paper.
+
+## Acknowledgements
 The dataset used in this framework is sourced from the WS-DREAM project, which provides a real-world dataset for web service recommendations. Thanks to the authors of WS-DREAM for making this dataset available.
 
 
