@@ -47,7 +47,6 @@ Alternatively, follow these steps to install from the source:
    python setup.py install
     ```
 
----
 
 ## Quick Start Guide
 
@@ -61,7 +60,6 @@ For a hands-on introduction to SerRec-Validator, we’ve prepared a Quick Start 
 
 Click [here](https://colab.research.google.com/drive/10qspRCXTODU5_MGa2w1p3E_5mWPdao4Q?usp=sharing) to get started and follow along with practical examples.
 
----
 
 Let me know if you’d like any adjustments!
 
@@ -78,8 +76,6 @@ By default, the dataset will be downloaded from:
 ```bash
   https://zenodo.org/record/1133476/files/wsdream_dataset1.zip?download=1
   ```
-
----
 
 ### Loading the Dataset
 
@@ -99,7 +95,6 @@ services_df = loader.services_df
 response_time_matrix = loader.response_time_matrix
 throughput_matrix = loader.throughput_matrix
 ```
----
 
 ### Integrating with Surprise
 The SerRec-Validator framework integrates seamlessly with the Surprise library, allowing you to apply collaborative filtering models such as SVD or KNNBasic. Here’s an example:
@@ -129,7 +124,6 @@ The SerRec-Validator framework integrates seamlessly with the Surprise library, 
   accuracy.rmse(predictions)
   ```
 
----
 
 ### Perform Model Evaluation
 Use the **ModelEvaluator** class to evaluate a recommender model:
@@ -141,8 +135,6 @@ Use the **ModelEvaluator** class to evaluate a recommender model:
   results = ModelEvaluator.evaluate(algo=svd, density=5, dataset=wsdream)
   print(results)
   ```
-
----
 
 ### Evaluation Metrics
 You can compute various evaluation metrics using the `EvaluationMetrics` class. For example:
@@ -174,7 +166,6 @@ print("Novelty:", novelty)
 print("Diversity:", diversity)
 ```
 
----
 
 ### Normalization Strategies
 SerRec-Validator provides several normalization strategies to ensure that your data is prepared for optimal model training:
@@ -187,8 +178,6 @@ SerRec-Validator provides several normalization strategies to ensure that your d
   normalized_data = zScore.normalize(response_time_matrix)
   ```
 
----
-
 ### Key Modules
 
   * `WsdreamDownloader`: Downloads and extracts the WS-DREAM dataset.
@@ -200,13 +189,11 @@ SerRec-Validator provides several normalization strategies to ensure that your d
 ### Acknowledgements
 The dataset used in this framework is sourced from the WS-DREAM project, which provides a real-world dataset for web service recommendations. Thanks to the authors of WS-DREAM for making this dataset available.
 
----
 
 ## License
 
 This project is licensed under the [BSD3-Clause](https://opensource.org/licenses/BSD-3-Clause) license, so it can be used for pretty much everything, including commercial applications.
 
----
 
 ### Contributing
 We welcome contributions to this project! If you’d like to improve the framework, feel free to fork the repository, submit pull requests, or open issues. Here are some ways you can help:
