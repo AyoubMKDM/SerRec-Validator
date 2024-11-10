@@ -3,20 +3,19 @@ import shutil
 from zipfile import ZipFile
 import os
 import argparse
+from urllib.error import URLError, HTTPError
 
 def get_input_args():
     """
     Retrieves and parses the 2 command line arguments provided by the user when
     they run the program from a terminal window. This function uses Python's 
-    argparse module to created and defined these 2 command line arguments. If 
+    argparse module to create and define these 2 command line arguments. If 
     the user fails to provide some or all of the 2 arguments, then the default 
-    values are used for the missing arguments. 
-    Command Line Arguments:
-      1. Dataset folder as --dir with default value 'dataset'
-      2. link o the repository containing the dataset as --url with default value 'https://zenodo.org/record/1133476/files/wsdream_dataset1.zip?download=1'
-    This function returns these arguments as an ArgumentParser object.
+    values are used for the missing arguments.
+    
     Parameters:
      None - simply using argparse module to create & store command line arguments
+    
     Returns:
      parse_args() - data structure that stores the command line arguments object  
     """
@@ -28,66 +27,104 @@ def get_input_args():
     return Parse.parse_args()
 
 
-def check_command_line_arguments(in_arg):
-    # TODO impliment this
-    pass
+def check_command_line_arguments(in_args):
+    """
+    Validates the command-line arguments.
+
+    Parameters:
+    in_args (argparse.Namespace): Command-line arguments
+
+    Returns:
+    bool: Returns True if arguments are valid, False otherwise
+    """
+    # Check if the directory path is valid (could be an existing directory or path to be created)
+    if not isinstance(in_args.dir, str):
+        print("Error: The directory path should be a string.")
+        return False
+    if not isinstance(in_args.url, str) or not in_args.url.startswith("http"):
+        print("Error: The URL is invalid.")
+        return False
+    
+    # TODO add other checks
+    return True
+
 
 def download(dir: str ='wsdream_dataset1', url : str ="https://zenodo.org/record/1133476/files/wsdream_dataset1.zip?download=1") -> str:
     """
-    Retrieve and download the WS-DREAM dataset as a zip file from the specified URL, 
-    then extract the content from the zip file and delete the latter. This function 
-    will add four files (rtMatrix.txt, tpMatrix.txt, userlist.txt, wslist.txt) to the 
-    specified directory or the current directory if no directory is specified.
+    Download and extract the WS-DREAM dataset from the given URL.
 
     Parameters:
     dir (str): The directory where the dataset will be stored. Default is "./wsdream_dataset1".
-    url (str): The URL of the downloadable zip file. The URL can be modified to download the 
-    WS-DREAM first dataset in case of a broken link or changing in the repository.
-    The default is 'https://zenodo.org/record/1133476/files/wsdream_dataset1.zip?download=1'.
+    url (str): The URL of the downloadable zip file.
 
     Returns:
-    None
+    str: The directory where the dataset is stored after downloading and extraction.
 
     Example:
     >>> dataset_downloader('my_data_folder')
     """
 
-    # TODO Handle http and url exceptions .. Use https://docs.python.org/3/library/urllib.error.html#urllib.error.URLError 
-    file_name = url.split('/')[-1]
-    page = urlopener.urlopen(url)
-    meta = page.info()
-    file_size = int(meta.get("Content-Length")[0])
-    print ("Downloading: %s (%s bytes)" % (file_name, file_size))
-    urlopener.urlretrieve(url, file_name)
-    print ('Unzip data files...')
-    with ZipFile(file_name, 'r') as archive:
-        for name in archive.namelist():
-            filename = os.path.basename(name)
-            # skip directories
-            if not filename:
-                continue
-            # copy file (taken from zipfile's extract)
-            print (filename)
-            source = archive.open(name)
-            if(dir is None):
-                target = open(filename, "wb")
-            else:
-                extraction_path = os.path.join(os.getcwd(),dir)
-                if not os.path.exists(extraction_path):
-                    print(f"Creating '{dir}/' folder ...")
-                    os.mkdir(dir)
-                target = open(os.path.join(extraction_path,filename),'wb')
-            with source, target:
-                shutil.copyfileobj(source, target)
+    try:
+        # Extract filename from the URL
+        file_name = url.split('/')[-1]
+        
+        # Open URL and retrieve file size
+        print(f"Attempting to download from {url} ...")
+        page = urlopener.urlopen(url)
+        meta = page.info()
+        file_size = int(meta.get("Content-Length")[0])
 
-    os.remove(file_name)
-    print('==============================================')
-    print('Downloading data done!\n')
-    return dir
+        print(f"Downloading: {file_name} ({file_size} bytes)")
+        urlopener.urlretrieve(url, file_name)
+
+        # Unzip the downloaded file
+        print("Unzipping dataset files...")
+        with ZipFile(file_name, 'r') as archive:
+            # Ensure the target extraction directory exists
+            extraction_path = os.path.join(os.getcwd(), dir)
+            os.makedirs(extraction_path, exist_ok=True)
+
+            # Extract and copy files
+            for name in archive.namelist():
+                filename = os.path.basename(name)
+                if filename:  # Skip directories
+                    print(f"Extracting: {filename}")
+                    source = archive.open(name)
+                    target_path = os.path.join(extraction_path, filename)
+                    with open(target_path, 'wb') as target:
+                        shutil.copyfileobj(source, target)
+
+        # Remove the zip file after extraction
+        os.remove(file_name)
+
+        print('==============================================')
+        print('Download and extraction complete!\n')
+        return dir
+
+    except HTTPError as e:
+        print(f"HTTP Error: {e.code} - {e.reason}")
+    except URLError as e:
+        print(f"URL Error: {e.reason}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+    return None
 
 def main():
+    # Retrieve command-line arguments
     in_args = get_input_args()
-    download(dir=in_args.dir,url=in_args.url)
+
+    # Check validity of the command-line arguments
+    if not check_command_line_arguments(in_args):
+        print("Invalid arguments provided. Exiting.")
+        return
+
+    # Call the download function with the parsed arguments
+    result_dir = download(dir=in_args.dir, url=in_args.url)
+    if result_dir:
+        print(f"Dataset stored in: {result_dir}")
+    else:
+        print("Download failed.")
 
 if __name__ == "__main__":
     main()

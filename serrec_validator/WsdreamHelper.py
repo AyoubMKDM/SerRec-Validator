@@ -4,7 +4,7 @@ import numpy as np
 from surprise import Dataset
 from surprise import Reader
 from .utility import DatasetFactory,NormalizationStrategy
-from .Normalization import reverse
+from .Normalization import Reverse
 from importlib.resources import files
 import errno
 import pkg_resources
@@ -36,10 +36,12 @@ class WsdreamLoader:
     dir : str
         The directory where the dataset files are located. If not provided, the current working directory is used.
     """
-    __USERS_LIST_FILE_NAME="userlist.txt"
-    __SERVICES_LIST_FILE_NAME="wslist.txt"
-    __RESPONSE_TIME_MATRIX_FILE_NAME = "rtMatrix.txt"
-    __THROUGHPUT_MATRIX_FILE_NAME = "tpMatrix.txt"
+    FILES = {
+        'USERS_LIST': "userlist.txt",
+        'SERVICES_LIST': "wslist.txt",
+        'RESPONSE_TIME_MATRIX': "rtMatrix.txt",
+        'THROUGHPUT_MATRIX': "tpMatrix.txt"
+    }
     __dir = None
     __instance = None
 
@@ -63,33 +65,28 @@ class WsdreamLoader:
             cls.__instance = super(WsdreamLoader, cls).__new__(cls)
             print("\t\t** DONE ** \n The dataset is accessible")
         return cls.__instance 
-
+    
     @classmethod
     def _files_reader(cls):
-        cls.users_df = cls.dataframe_fromtxt(path=os.path.join(cls.__dir, cls.__USERS_LIST_FILE_NAME))
-        cls.services_df = cls.dataframe_fromtxt(path=os.path.join(cls.__dir, cls.__SERVICES_LIST_FILE_NAME))
-        cls.response_time_matrix = np.loadtxt(os.path.join(cls.__dir, cls.__RESPONSE_TIME_MATRIX_FILE_NAME))
-        cls.throughput_matrix = np.loadtxt(os.path.join(cls.__dir, cls.__THROUGHPUT_MATRIX_FILE_NAME))  
+        cls.users_df = cls.dataframe_fromtxt(path=os.path.join(cls.__dir, cls.FILES['USERS_LIST']))
+        cls.services_df = cls.dataframe_fromtxt(path=os.path.join(cls.__dir, cls.FILES['SERVICES_LIST']))
+        cls.response_time_matrix = np.loadtxt(os.path.join(cls.__dir, cls.FILES['RESPONSE_TIME_MATRIX']))
+        cls.throughput_matrix = np.loadtxt(os.path.join(cls.__dir, cls.FILES['THROUGHPUT_MATRIX']))  
         cls.services_df['IP No.'].replace("0",value=pd.NA,inplace=True) 
     
     
     @classmethod 
     def _files_checker(cls):
-        full_path = os.path.join(os.getcwd(),cls.__dir)
-        # Check if the data in the specified directory exists
+        full_path = os.path.join(os.getcwd(), cls.__dir)
+        # Check if the directory exists
         if not os.path.exists(full_path):
             cls._raise_FileNotFoundError(full_path)
         else:
             ls = os.listdir(full_path)
-            # If the folder exist check if all the files exist
-            if (cls.__USERS_LIST_FILE_NAME not in ls):
-                cls._raise_FileNotFoundError(os.path.join(full_path, cls.__USERS_LIST_FILE_NAME))
-            elif (cls.__SERVICES_LIST_FILE_NAME not in ls):
-                cls._raise_FileNotFoundError(os.path.join(full_path, cls.__SERVICES_LIST_FILE_NAME))
-            elif (cls.__RESPONSE_TIME_MATRIX_FILE_NAME not in ls):
-                cls._raise_FileNotFoundError(os.path.join(full_path, cls.__RESPONSE_TIME_MATRIX_FILE_NAME))
-            elif (cls.__THROUGHPUT_MATRIX_FILE_NAME not in ls):
-                cls._raise_FileNotFoundError(os.path.join(full_path, cls.__THROUGHPUT_MATRIX_FILE_NAME))
+            # Check for each file in the dataset
+            for file_key, file_name in cls.FILES.items():
+                if file_name not in ls:
+                    cls._raise_FileNotFoundError(os.path.join(full_path, file_name))
 
     @classmethod
     def _raise_FileNotFoundError(cls, dir:str):
@@ -101,23 +98,33 @@ class WsdreamLoader:
             
 
     def df_from_matrix(self, matrix):
-        # Converting matrix to list
+        """
+        Converts the given matrix into a DataFrame and skips rows with invalid values.
+        
+        Parameters:
+            matrix (numpy.ndarray): The matrix to convert.
+        
+        Returns:
+            pd.DataFrame: The resulting DataFrame with valid rows.
+        """
         list_dataset = [[i,j,matrix[i][j]] for i in range(matrix.shape[0]) for j in range(matrix.shape[1]) if matrix[i][j] != '-1']
         # Converting list to Pandas DataFrame
         pd_list = pd.DataFrame(list_dataset,columns=['User ID', 'Service ID', 'Rating'])
         return pd_list
 
-    # def _list_from_matrix(self, matrix):
-    #     data_list = [[i,j,matrix[i][j]] for i in range(matrix.shape[0]) for j in range(matrix.shape[1]) if matrix[i][j] != -1]
-    #     return data_list
-
     def save_list_tocsv(self, listName: str):
         """
-        Create a CSV file from users_df or services_df DataFrames. and store it in the current directory under the name usersList or servicesList respectively.
+        Saves the specified DataFrame to a CSV file. The DataFrame is either `users_df` or `services_df`.
+        
         Parameters:
-            listName (str): The name of the list to be saved, acceptable values 'users_df' or 'services_df'
-        Return:
+            listName (str): The name of the DataFrame to save. Must be either 'users_df' or 'services_df'.
+        
+        Returns:
             None
+        
+        Example:
+            >>> save_list_tocsv('users_df')
+            "users_df" is saved to the file "usersList.csv".
         """
         if listName != 'users_df' and listName != 'services_df':
             print(f'No such attibute with the name "{listName}."')
@@ -160,12 +167,12 @@ class WsdreamLoader:
         return df
 
 class WsdreamDataset(DatasetFactory):
-    def __init__(self, wsdream: WsdreamLoader, normalization_strategy: NormalizationStrategy = reverse) -> None:
+    def __init__(self, wsdream: WsdreamLoader, normalization_strategy: NormalizationStrategy = Reverse) -> None:
         self.wsdream = wsdream
         self.normalization_strategy = normalization_strategy
         # self._responseTime =  self.wsdream.response_time_matrix
         self._responseTime =  normalization_strategy.normalize(self.wsdream.response_time_matrix)
-        self._responseTime =  reverse.normalize(self._responseTime)
+        self._responseTime =  Reverse.normalize(self._responseTime)
         self._throughput = self.wsdream.throughput_matrix
         self._throughput = self.normalization_strategy.normalize(self.wsdream.throughput_matrix)
         self._responseTime = wsdream.df_from_matrix(self._responseTime)
