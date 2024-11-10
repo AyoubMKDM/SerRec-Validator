@@ -36,7 +36,7 @@ Alternatively, follow these steps to install from the source:
 1. Clone the repository:
    ```bash
    git clone https://github.com/AyoubMKDM/serrec-validator.git
-   cd serrec-validator
+   cd cd SerRec-Validator/
    ```
 2. Install the required dependencies:
   ```bash
@@ -46,6 +46,24 @@ Alternatively, follow these steps to install from the source:
    ```bash
    python setup.py install
     ```
+
+---
+
+## Quick Start Guide
+
+For a hands-on introduction to SerRec-Validator, we’ve prepared a Quick Start Guide as an interactive [Google Colab Notebook](https://colab.research.google.com/drive/10qspRCXTODU5_MGa2w1p3E_5mWPdao4Q?usp=sharing). This notebook covers:
+
+1. **Installation**: Step-by-step instructions to set up the framework.
+2. **Dataset Preparation**: Guidance on loading the WS-DREAM dataset or custom datasets.
+3. **Model Training and Evaluation**: Examples demonstrating the integration with the Surprise library for training and evaluating collaborative filtering models.
+4. **Metrics Calculation**: An overview of available evaluation metrics, with code examples.
+5. **Normalization Techniques**: Sample code for normalizing data before feeding it into models.
+
+Click [here](https://colab.research.google.com/drive/10qspRCXTODU5_MGa2w1p3E_5mWPdao4Q?usp=sharing) to get started and follow along with practical examples.
+
+---
+
+Let me know if you’d like any adjustments!
 
 ## Usage
 
@@ -61,9 +79,11 @@ By default, the dataset will be downloaded from:
   https://zenodo.org/record/1133476/files/wsdream_dataset1.zip?download=1
   ```
 
+---
+
 ### Loading the Dataset
 
-You can easily load the WS-DREAM dataset using the ***WsdreamLoader*** class. Here's how:
+You can easily load the WS-DREAM dataset using the `WsdreamLoader` class. Here's how:
 
 ```python
 from serrec_validator.WsdreamLoader import WsdreamLoader
@@ -79,6 +99,7 @@ services_df = loader.services_df
 response_time_matrix = loader.response_time_matrix
 throughput_matrix = loader.throughput_matrix
 ```
+---
 
 ### Integrating with Surprise
 The SerRec-Validator framework integrates seamlessly with the Surprise library, allowing you to apply collaborative filtering models such as SVD or KNNBasic. Here’s an example:
@@ -108,6 +129,7 @@ The SerRec-Validator framework integrates seamlessly with the Surprise library, 
   accuracy.rmse(predictions)
   ```
 
+---
 
 ### Perform Model Evaluation
 Use the **ModelEvaluator** class to evaluate a recommender model:
@@ -120,8 +142,10 @@ Use the **ModelEvaluator** class to evaluate a recommender model:
   print(results)
   ```
 
+---
+
 ### Evaluation Metrics
-You can compute various evaluation metrics using the ***EvaluationMetrics*** class. For example:
+You can compute various evaluation metrics using the `EvaluationMetrics` class. For example:
 
 ```python
 from serrec_validator import EvaluationMetrics
@@ -150,6 +174,7 @@ print("Novelty:", novelty)
 print("Diversity:", diversity)
 ```
 
+---
 
 ### Normalization Strategies
 SerRec-Validator provides several normalization strategies to ensure that your data is prepared for optimal model training:
@@ -162,22 +187,26 @@ SerRec-Validator provides several normalization strategies to ensure that your d
   normalized_data = zScore.normalize(response_time_matrix)
   ```
 
+---
+
 ### Key Modules
 
-  * ***WsdreamDownloader***: Downloads and extracts the WS-DREAM dataset.
-  * ***WsdreamLoader***: Loads the WS-DREAM dataset and makes it available for use in the framework.
-  * ***ModelEvaluator***: Evaluates different recommendation models using various metrics.
-  * ***Normalization***: Contains methods to normalize the dataset and the response times for better model performance.
-  * ***EvaluationMetrics***: Computes various metrics like novelty, diversity, and accuracy for evaluating the recommendation models.
+  * `WsdreamDownloader`: Downloads and extracts the WS-DREAM dataset.
+  * `WsdreamLoader`: Loads the WS-DREAM dataset and makes it available for use in the framework.
+  * `ModelEvaluator`: Evaluates different recommendation models using various metrics.
+  * `Normalization`: Contains methods to normalize the dataset and the response times for better model performance.
+  * `EvaluationMetrics`: Computes various metrics like novelty, diversity, and accuracy for evaluating the recommendation models.
 
 ### Acknowledgements
 The dataset used in this framework is sourced from the WS-DREAM project, which provides a real-world dataset for web service recommendations. Thanks to the authors of WS-DREAM for making this dataset available.
 
+---
 
 ## License
 
 This project is licensed under the [BSD3-Clause](https://opensource.org/licenses/BSD-3-Clause) license, so it can be used for pretty much everything, including commercial applications.
 
+---
 
 ### Contributing
 We welcome contributions to this project! If you’d like to improve the framework, feel free to fork the repository, submit pull requests, or open issues. Here are some ways you can help:
