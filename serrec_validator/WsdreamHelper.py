@@ -65,47 +65,14 @@ class WsdreamLoader:
             print("\t\t** DONE ** \n The dataset is accessible")
         return cls.__instance 
     
-    #  @classmethod
-    # def _files_checker(cls):
-    #     # Check if the data files exist in the package
-    #     try:
-    #         cls._get_resource_path(cls.FILES['USERS_LIST'])
-    #         cls._get_resource_path(cls.FILES['SERVICES_LIST'])
-    #         cls._get_resource_path(cls.FILES['RESPONSE_TIME_MATRIX'])
-    #         cls._get_resource_path(cls.FILES['THROUGHPUT_MATRIX'])
-    #     except FileNotFoundError as e:
-    #         cls._raise_FileNotFoundError(e)
-    
-    
-    # @classmethod 
-    # def _files_checker(cls):
-    #     full_path = os.path.join(os.getcwd(), cls.__dir)
-    #     # Check if the directory exists
-    #     if not os.path.exists(full_path):
-    #         cls._raise_FileNotFoundError(full_path)
-    #     else:
-    #         ls = os.listdir(full_path)
-    #         # Check for each file in the dataset
-    #         for file_key, file_name in cls.FILES.items():
-    #             if file_name not in ls:
-    #                 cls._raise_FileNotFoundError(os.path.join(full_path, file_name))
-
-    # @classmethod
-    # def _raise_FileNotFoundError(cls, dir:str):
-    #     print('')
-    #     raise FileNotFoundError(errno.ENOENT, 
-    #                             f"File not found \
-    #                             \nYou need to download the dataset first: \n\t>>> path = WsdreamDataset1Downloader.download(\'<The folder where to save the dataset>\')\
-    #                             \n{os.strerror(errno.ENOENT)}", dir)
-            
     @classmethod
     def _files_reader(cls):
         # Use pkg_resources to access the dataset files from the package or resource folder
-        cls.users_df = cls.dataframe_fromtxt(cls._get_resource_path(cls.FILES['USERS_LIST']))
-        cls.services_df = cls.dataframe_fromtxt(cls._get_resource_path(cls.FILES['SERVICES_LIST']))
+        cls._users_df = cls.dataframe_fromtxt(cls._get_resource_path(cls.FILES['USERS_LIST']))
+        cls._services_df = cls.dataframe_fromtxt(cls._get_resource_path(cls.FILES['SERVICES_LIST']))
         cls.response_time_matrix = np.loadtxt(cls._get_resource_path(cls.FILES['RESPONSE_TIME_MATRIX']))
         cls.throughput_matrix = np.loadtxt(cls._get_resource_path(cls.FILES['THROUGHPUT_MATRIX']))
-        cls.services_df['IP No.'].replace("0", value=pd.NA, inplace=True)
+        cls._services_df['IP No.'].replace("0", value=pd.NA, inplace=True)
 
     @classmethod
     def _files_checker(cls):
@@ -169,9 +136,9 @@ class WsdreamLoader:
         if listName != 'users_df' and listName != 'services_df':
             print(f'No such attibute with the name "{listName}."')
         elif listName == 'users_df':
-            self.users_df.to_csv(listName[:-3] + "List.csv",index=False)
+            self._users_df.to_csv(listName[:-3] + "List.csv",index=False)
         elif listName == 'services_df':
-            self.services_df.to_csv(listName[:-3] + "List.csv",index=False)
+            self._services_df.to_csv(listName[:-3] + "List.csv",index=False)
         print(f'"{listName}" is saved to the file "{listName[:-3]}List.csv".')
         
 
@@ -269,7 +236,7 @@ class WsdreamDataset(DatasetFactory):
             A pandas DataFrame with columns 'User ID', 'IP Address, 'Country', 'IP No.', 'AS',
                 'Latitude', and 'Longitude' containing information about the users in the Wsdream dataset1.
         """
-        users = self.wsdream.users_df
+        users = self.wsdream._users_df.copy()
         # Casting dictionary
         convert_dict = {'User ID': int,
                         'IP No.': int,
@@ -289,7 +256,7 @@ class WsdreamDataset(DatasetFactory):
                 'Country', 'IP No.', 'AS', 'Latitude', 'Longitude' containing information about the services in the Wsdream dataset1.
         """
         # Casting dictionary
-        services = self.wsdream.services_df
+        services = self.wsdream._services_df.copy()
         convert_dict = {'Service ID': int,
                         'IP No.': pd.Int64Dtype(),
                         'Latitude': float,

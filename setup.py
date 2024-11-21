@@ -1,7 +1,11 @@
 from setuptools import setup
 
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+
+
 setup(name="serrec_validator",
-        version="0.1.0",
+        version="0.0.4",
         url='https://github.com/AyoubMKDM/SerRec-Validator',
         description="A framework for service recommendation evaluation using the WS-DREAM dataset",
         long_description_content_type="text/markdown",
@@ -10,10 +14,7 @@ setup(name="serrec_validator",
         license='BSD',
         author="Ayoub Mokeddem",
         author_email="ayoubmkdm3@gmail.com",
-        install_requires=["numpy",
-                            "pandas",
-                            "scikit-surprise",
-                            "tabulate>=0.9.0"],
+        install_requires=requirements,
         extras_requires={
             "dev": ["pytest>=7.0","twine>=4.0.2"],
         },
