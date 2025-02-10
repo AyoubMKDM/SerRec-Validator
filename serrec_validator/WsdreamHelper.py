@@ -114,7 +114,11 @@ class WsdreamLoader:
         Returns:
             pd.DataFrame: The resulting DataFrame with valid rows.
         """
-        list_dataset = [[i,j,matrix[i][j]] for i in range(matrix.shape[0]) for j in range(matrix.shape[1]) if matrix[i][j] != '-1']
+        list_dataset = list_dataset = [
+            [i, j, None if matrix[i][j] == -1 else matrix[i][j]]
+            for i in range(matrix.shape[0])
+            for j in range(matrix.shape[1])
+        ]
         # Converting list to Pandas DataFrame
         pd_list = pd.DataFrame(list_dataset,columns=['User ID', 'Service ID', 'Rating'])
         return pd_list
@@ -174,14 +178,16 @@ class WsdreamLoader:
         return df
 
 class WsdreamDataset(DatasetFactory):
-    def __init__(self, wsdream: WsdreamLoader, normalization_strategy: NormalizationStrategy = Reverse) -> None:
+    def __init__(self, wsdream: WsdreamLoader, normalization_strategy: NormalizationStrategy = None) -> None:
         self.wsdream = wsdream
         self.normalization_strategy = normalization_strategy
-        # self._responseTime =  self.wsdream.response_time_matrix
-        self._responseTime =  normalization_strategy.normalize(self.wsdream.response_time_matrix)
-        self._responseTime =  Reverse.normalize(self._responseTime)
+        # normalization_strategy = Reverse.normalize
+        self._responseTime = self.wsdream.response_time_matrix
         self._throughput = self.wsdream.throughput_matrix
-        self._throughput = self.normalization_strategy.normalize(self.wsdream.throughput_matrix)
+        self._responseTime = Reverse.normalize(self._responseTime) 
+        if normalization_strategy is not None:
+            self._responseTime = self.normalization_strategy.normalize(self.wsdream.throughput_matrix)
+            self._throughput = self.normalization_strategy.normalize(self.wsdream.throughput_matrix)
         self._responseTime = wsdream.df_from_matrix(self._responseTime)
         self._throughput = wsdream.df_from_matrix(self._throughput)
 
