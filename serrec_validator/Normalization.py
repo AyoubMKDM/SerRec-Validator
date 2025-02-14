@@ -15,7 +15,7 @@ class Reverse(NormalizationStrategy):
     @staticmethod
     def normalize(data: np.ndarray) -> np.ndarray:
         """Normalize data by subtracting from the maximum value."""
-        max = data.max()
+        max = np.nanmax(data)
         data = max - data
         return data
     

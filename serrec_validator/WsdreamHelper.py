@@ -72,7 +72,10 @@ class WsdreamLoader:
         cls._services_df = cls.dataframe_fromtxt(cls._get_resource_path(cls.FILES['SERVICES_LIST']))
         cls.response_time_matrix = np.loadtxt(cls._get_resource_path(cls.FILES['RESPONSE_TIME_MATRIX']))
         cls.throughput_matrix = np.loadtxt(cls._get_resource_path(cls.FILES['THROUGHPUT_MATRIX']))
+        # defining missing values
         cls._services_df['IP No.'].replace("0", value=pd.NA, inplace=True)
+        cls.response_time_matrix[cls.response_time_matrix == -1.] = np.nan
+        cls.throughput_matrix[cls.throughput_matrix == -1.] = np.nan
 
     @classmethod
     def _files_checker(cls):
@@ -115,12 +118,13 @@ class WsdreamLoader:
             pd.DataFrame: The resulting DataFrame with valid rows.
         """
         list_dataset = list_dataset = [
-            [i, j, None if matrix[i][j] == -1 else matrix[i][j]]
+            [i, j, matrix[i][j]]
             for i in range(matrix.shape[0])
             for j in range(matrix.shape[1])
         ]
         # Converting list to Pandas DataFrame
         pd_list = pd.DataFrame(list_dataset,columns=['User ID', 'Service ID', 'Rating'])
+        
         return pd_list
 
     def save_list_tocsv(self, listName: str):
@@ -204,10 +208,12 @@ class WsdreamDataset(DatasetFactory):
         """
         try:
             frac = density/100
-            #Reversing data
-            max = int(self._responseTime.Rating.max() + 1)
-            min = int(self._responseTime.Rating.min() - 1)
-            sample = self._responseTime.sample(frac=frac, random_state=random_state, ignore_index=True)
+            # Dropping the na raws TODO add it as an argument either drop em or option to replace them with
+            rt = self._responseTime.dropna()
+            #definig the Reader object
+            max = int(rt.Rating.max() + 1)
+            min = int(rt.Rating.min() - 1)
+            sample = rt.sample(frac=frac, random_state=random_state, ignore_index=True)
             reader =  Reader(rating_scale=(min, max))
             # Convert DataFrame to surprise Dataset object
             data = Dataset.load_from_df(sample, reader)
