@@ -209,12 +209,12 @@ class WsdreamDataset(DatasetFactory):
         try:
             frac = density/100
             # Dropping the na raws TODO add it as an argument either drop em or option to replace them with
-            rt = self._responseTime.dropna()
+            rt = self._responseTime.dropna(subset=['Rating'])
             #definig the Reader object
-            max = int(rt.Rating.max() + 1)
-            min = int(rt.Rating.min() - 1)
+            max_rating = int(rt['Rating'].max() + 1)
+            min_rating = int(rt['Rating'].min() - 1)
             sample = rt.sample(frac=frac, random_state=random_state, ignore_index=True)
-            reader =  Reader(rating_scale=(min, max))
+            reader =  Reader(rating_scale=(min_rating, max_rating))
             # Convert DataFrame to surprise Dataset object
             data = Dataset.load_from_df(sample, reader)
             return data

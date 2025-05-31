@@ -62,7 +62,7 @@ class zScore(NormalizationStrategy):
     @staticmethod
     def normalize(data: np.ndarray) -> np.ndarray:
         """Normalize data to Z-scores."""
-        data = (data - data.mean())/data.std()
+        data = (data - np.nanmean(data))/np.nanstd(data)
         return data
 
     
